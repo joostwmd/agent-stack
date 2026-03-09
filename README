@@ -1,0 +1,201 @@
+# agent-stack
+
+My personal AI agent configuration repo. Contains all agent definitions, skills, hooks, and stack configurations for agentic coding in Cursor.
+
+Shared across projects via git submodule. Improve a prompt once — every project gets it.
+
+---
+
+## What's Inside
+```
+agent-stack/
+├── core/                          # Tech-agnostic agents (work for any project)
+│   ├── agents/
+│   │   ├── requirements-agent.md  # Produces Given/When/Then acceptance criteria
+│   │   ├── planner-agent.md       # Breaks features into ordered atomic tasks
+│   │   ├── ticket-writer-agent.md # Enriches tasks into full ticket documents
+│   │   ├── test-definer-agent.md  # Defines unit vs e2e split and coverage goals
+│   │   ├── mutation-tester-agent.md # Reads Stryker report, flags test gaps
+│   │   └── reviewer-agent.md      # Final cross-layer sign-off
+│   └── skills/
+│       ├── atomic-commits.md      # Conventional commits, one concern per commit
+│       ├── ticket-format.md       # Standard ticket structure all agents follow
+│       └── tdd-flow.md            # Red → green → refactor discipline
+│
+├── stacks/                        # Tech-specific agent bundles
+│   ├── react-hono-trpc/           # React + Hono + tRPC + Drizzle + Supabase + Better Auth
+│   │   ├── agents/
+│   │   │   ├── db-agent.md        # Drizzle schema + Supabase migrations
+│   │   │   ├── storage-agent.md   # Supabase Storage buckets + RLS policies
+│   │   │   ├── api-agent.md       # Hono routes + tRPC routers
+│   │   │   ├── auth-agent.md      # Better Auth wiring + session typing
+│   │   │   ├── ui-design-agent.md # Component tree, layout, states
+│   │   │   ├── ui-agent.md        # React + Shadcn implementation
+│   │   │   ├── unit-test-writer-agent.md # Failing Vitest specs
+│   │   │   ├── e2e-test-writer-agent.md  # Failing Playwright specs
+│   │   │   └── e2e-runner-agent.md       # Runs + self-heals Playwright tests
+│   │   └── skills/
+│   │       ├── trpc-patterns.md
+│   │       ├── shadcn-conventions.md
+│   │       ├── better-auth-rules.md
+│   │       ├── drizzle-schema.md
+│   │       ├── supabase-storage.md
+│   │       └── typescript-strict.md
+│   │
+│   └── electron/                  # Electron overrides on top of react-hono-trpc
+│       ├── agents/
+│       │   └── ui-agent.md        # Overrides base ui-agent (no Shadcn, native UI)
+│       └── skills/
+│           └── electron-ipc.md
+│
+├── hooks/                         # Shell scripts for Cursor's hook system
+│   ├── post-edit-typecheck.sh     # Runs tsc --noEmit after every file write
+│   ├── post-edit-lint.sh          # Runs ESLint after every file write
+│   └── pre-bash-approval.sh       # Surfaces terminal commands for manual approval
+│
+└── commands/
+    └── commit.md                  # /commit slash command definition
+```
+
+---
+
+## Agent Pipeline
+```
+requirements-agent → ui-design-agent → planner-agent → test-definer-agent → ticket-writer-agent
+                                                                                      ↓
+                                                                         [review tickets in git]
+                                                                                      ↓
+                                                          unit-test-writer + e2e-test-writer  ← failing specs first
+                                                                                      ↓
+                                                    db → storage → api → auth → ui   ← each atomic commit
+                                                                                      ↓
+                                                              e2e-runner → mutation-tester → reviewer
+```
+
+---
+
+## Setting Up in a New Project
+
+### 1. Add as a submodule
+```bash
+git submodule add git@github.com:you/agent-stack.git .cursor/shared
+git submodule update --init
+```
+
+### 2. Symlink into Cursor's expected paths
+```bash
+# Core — always loaded in every project
+ln -s .cursor/shared/core/agents   .cursor/agents/core
+ln -s .cursor/shared/core/skills   .cursor/skills/core
+
+# Stack — pick your stack
+ln -s .cursor/shared/stacks/react-hono-trpc/agents  .cursor/agents/stack
+ln -s .cursor/shared/stacks/react-hono-trpc/skills  .cursor/skills/stack
+
+# Shared tooling
+ln -s .cursor/shared/hooks     .cursor/hooks
+ln -s .cursor/shared/commands  .cursor/commands
+```
+
+For an Electron project, add the override layer on top:
+```bash
+ln -s .cursor/shared/stacks/electron/agents  .cursor/agents/electron
+ln -s .cursor/shared/stacks/electron/skills  .cursor/skills/electron
+```
+
+### 3. Create your project AGENT.md
+```bash
+touch .cursor/AGENT.md
+```
+
+Minimal content:
+```markdown
+## Stack
+react-hono-trpc
+
+## Layers loaded
+- .cursor/agents/core
+- .cursor/agents/stack
+
+## Project-specific notes
+- DB: Supabase (self-hosted)
+- Auth: Better Auth with session strategy
+- No overrides — all shared agents apply as-is
+```
+
+### 4. Configure MCP servers
+
+Create `.cursor/mcp.json` in your project:
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--supabase-url", "https://your-project.supabase.co",
+        "--supabase-key", "${SUPABASE_SERVICE_KEY}",
+        "--features", "database,storage"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}
+```
+
+---
+
+## Keeping Projects Up to Date
+
+When you improve an agent or skill in this repo:
+```bash
+# In agent-stack
+git commit -m "refactor: improve ticket-writer prompt"
+git push
+
+# In any project using it
+git submodule update --remote --merge
+```
+
+Add this alias to your shell to make it a one-liner:
+```bash
+# .zshrc or .bashrc
+alias ai-sync="git submodule update --remote --merge"
+```
+
+Then syncing any project is just:
+```bash
+ai-sync
+```
+
+---
+
+## Override Priority
+
+When Cursor loads agents and skills, project-level files always win:
+```
+1. .cursor/agents/          ← project-specific, highest priority
+2. .cursor/agents/electron  ← electron stack override (if loaded)
+3. .cursor/agents/stack     ← base stack (react-hono-trpc)
+4. .cursor/agents/core      ← tech-agnostic baseline
+```
+
+---
+
+## Versioning
+
+Tag stable states of the repo so projects can pin to a known-good version:
+```bash
+git tag -a v1.0.0 -m "stable: react-hono-trpc stack complete"
+git push --tags
+```
+
+Pin a project to a specific version:
+```bash
+cd your-project
+git -C .cursor/shared checkout v1.0.0
+```
