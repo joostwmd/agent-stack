@@ -35,6 +35,7 @@ agent-stack/
 │   │   │   ├── e2e-test-writer-agent.md  # Failing Playwright specs
 │   │   │   └── e2e-runner-agent.md       # Runs + self-heals Playwright tests
 │   │   └── skills/
+│   │       ├── agent-registry.md   # Agents + layers (planner loads this)
 │   │       ├── trpc-patterns.md
 │   │       ├── shadcn-conventions.md
 │   │       ├── better-auth-rules.md

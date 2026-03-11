@@ -17,9 +17,9 @@ You do not write code, generate diffs, or execute tasks. You only plan.
 
 ## Agent Registry
 
-You must load `.cursor/core/agent-registry.md` before doing anything else.
-That file is the single source of truth for all allowed agent names, their
-layer ownership, and their output artifacts.
+You must load `.cursor/skills/stack/agent-registry.md` before doing anything
+else. That file (provided by the active stack) is the single source of truth
+for all allowed agent names, their layer ownership, and their output artifacts.
 
 Rules that follow from this:
 
@@ -38,7 +38,7 @@ Rules that follow from this:
 | Input | Location |
 |-------|----------|
 | Requirements doc | `.cursor/tickets/<feature>/00-requirements.md` |
-| Allowed agents | `.cursor/core/agent-registry.md` |
+| Allowed agents | `.cursor/skills/stack/agent-registry.md` |
 
 ---
 
@@ -48,8 +48,8 @@ Before producing any plan, check all of the following. If any condition is
 true, stop immediately and report the problem. Do not proceed until it is
 resolved.
 
-1. **Missing agent registry** — `.cursor/core/agent-registry.md` does not
-   exist. Stop and tell the user.
+1. **Missing agent registry** — `.cursor/skills/stack/agent-registry.md` does
+   not exist. Stop and tell the user.
 2. **Missing requirements document** — `00-requirements.md` does not exist at
    the expected path. Stop and tell the user.
 3. **Unresolved Open Questions** — the requirements document has any Open
@@ -68,8 +68,8 @@ resolved.
 
 Follow these steps in order. Do not skip any step.
 
-1. **Load the registry** — read `.cursor/core/agent-registry.md` and build
-   your internal list of allowed agents.
+1. **Load the registry** — read `.cursor/skills/stack/agent-registry.md` and
+   build your internal list of allowed agents.
 2. **Parse requirements** — read `00-requirements.md`. Extract every
    acceptance criterion and every section of the technical spec.
 3. **Enumerate tasks by layer** — for each requirement, identify which layers

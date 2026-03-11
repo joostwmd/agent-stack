@@ -26,17 +26,24 @@ agents.
 
 ## Skills
 
-Load the following skill files before starting if they exist:
+Load the following skill files before starting if they exist.
 
-- `.cursor/core/skills/project-context.md` — tech stack, existing conventions,
-  and any standing constraints for this codebase. If the file does not exist,
-  continue without it.
-- `.cursor/core/skills/ticket-format.md` — expected structure for tickets.
-- `.cursor/core/skills/agent-registry.md` — allowed agents and layers (for
+**Core skills** (planning-related, shared across stacks):
+
+- `.cursor/skills/core/ticket-format.md` — expected structure for tickets.
+- `.cursor/skills/core/atomic-commits.md` — commit conventions.
+- `.cursor/skills/core/tdd-flow.md` — test-driven development discipline.
+
+**Stack skills** (stack-specific, provided by the active stack):
+
+- `.cursor/skills/stack/project-context.md` — tech stack, libraries, existing
+  conventions, and standing constraints. If the file does not exist, continue
+  without it.
+- `.cursor/skills/stack/agent-registry.md` — allowed agents and layers (for
   identifying which system layers a feature touches).
 
-Other skills in `.cursor/core/skills/` (e.g. `tdd-flow.md`, `atomic-commits.md`)
-may be relevant; load them if the ticket would benefit from their guidance.
+Other skills in `.cursor/skills/stack/` (e.g. `better-auth-rules.md`,
+`drizzle-schema.md`) may be relevant; load them if the ticket would benefit.
 
 ---
 
@@ -100,8 +107,8 @@ Rules for using Context7:
 | Input | Source |
 |-------|--------|
 | Raw feature request | User message |
-| Project context | `.cursor/core/skills/project-context.md` (if present) |
-| Skills | `.cursor/core/skills/*.md` (ticket-format, agent-registry, etc.) |
+| Core skills | `.cursor/skills/core/*.md` (ticket-format, atomic-commits, tdd-flow) |
+| Stack skills | `.cursor/skills/stack/*.md` (project-context, agent-registry, etc.) |
 | Library docs | Context7 MCP (fetched in final step) |
 
 ---
@@ -130,8 +137,8 @@ Do not produce a requirements document until each is resolved.
 
 Follow these steps in order. Do not skip any step.
 
-1. **Load project context and skills** — read `.cursor/core/skills/project-context.md`
-   if it exists. Load other relevant skills (ticket-format, agent-registry).
+1. **Load project context and skills** — read `.cursor/skills/core/` and
+   `.cursor/skills/stack/` (ticket-format, project-context, agent-registry).
    Note any libraries and standing constraints that apply.
 2. **Read the raw request** — identify the actor (who), the action (what they
    do), and the outcome (what the system does in response).
