@@ -21,6 +21,8 @@ agent-stack/
 │       ├── atomic-commits.md      # Conventional commits, one concern per commit
 │       ├── ticket-format.md       # Standard ticket structure all agents follow
 │       └── tdd-flow.md            # Red → green → refactor discipline
+│   └── rules/
+│       └── intent-routing.mdc    # Classify requests → full feature / continue / quick fix / review
 │
 ├── stacks/                        # Tech-specific agent bundles
 │   ├── react-hono-trpc/           # React + Hono + tRPC + Drizzle + Supabase + Better Auth
@@ -49,10 +51,11 @@ agent-stack/
 │       └── skills/
 │           └── electron-ipc.md
 │
-├── hooks/                         # Shell scripts for Cursor's hook system
-│   ├── post-edit-typecheck.sh     # Runs tsc --noEmit after every file write
-│   ├── post-edit-lint.sh          # Runs ESLint after every file write
-│   └── pre-bash-approval.sh       # Surfaces terminal commands for manual approval
+├── hooks/                         # Shell scripts
+│   ├── post-edit-typecheck.sh     # Cursor: tsc after file write
+│   ├── post-edit-lint.sh          # Cursor: ESLint after file write
+│   ├── pre-bash-approval.sh       # Cursor: surface commands for approval
+│   └── commit-msg-append-review.sh # Git: appends .cursor/review-append.txt to commit body
 │
 └── commands/
     └── commit.md                  # /commit slash command definition
@@ -62,15 +65,15 @@ agent-stack/
 
 ## Agent Pipeline
 ```
-requirements-agent → ui-design-agent → planner-agent → test-definer-agent → ticket-writer-agent
-                                                                                      ↓
-                                                                         [review tickets in git]
-                                                                                      ↓
-                                                          unit-test-writer + e2e-test-writer  ← failing specs first
-                                                                                      ↓
-                                                    db → storage → api → auth → ui   ← each atomic commit
-                                                                                      ↓
-                                                              e2e-runner → mutation-tester → reviewer
+requirements-agent → ticket-writer-agent → planner-agent → test-definer-agent
+                                                                        ↓
+                                    unit-test-writer + e2e-test-writer  ← failing specs first
+                                                                        ↓
+                              db → storage → api → auth → ui   ← each atomic commit
+                                                                        ↓
+                                    e2e-runner → mutation-tester → reviewer  ← auto-runs per task
+                                                                        ↓
+                                    commit (hook appends review to message)
 ```
 
 ---
@@ -93,9 +96,16 @@ ln -s .cursor/shared/core/skills   .cursor/skills/core
 ln -s .cursor/shared/stacks/react-hono-trpc/agents  .cursor/agents/stack
 ln -s .cursor/shared/stacks/react-hono-trpc/skills  .cursor/skills/stack
 
+# Rules (intent classification for routing)
+ln -s .cursor/shared/core/rules  .cursor/rules/core
+
 # Shared tooling
 ln -s .cursor/shared/hooks     .cursor/hooks
 ln -s .cursor/shared/commands  .cursor/commands
+
+# Git commit-msg hook (appends review snippet to commit body)
+cp .cursor/shared/hooks/commit-msg-append-review.sh .git/hooks/commit-msg
+chmod +x .git/hooks/commit-msg
 ```
 
 For an Electron project, add the override layer on top:

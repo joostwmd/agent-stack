@@ -1,0 +1,39 @@
+---
+description: >
+  Classify incoming requests to route to the right pipeline. Apply when the
+  user starts a new chat or gives an open-ended request. Routes: full feature,
+  continue task, quick change, review only, or general question.
+alwaysApply: true
+---
+
+# Intent Classification and Routing
+
+When the user sends a message, classify the intent and route accordingly. Use this to avoid running the full feature pipeline when a smaller flow suffices.
+
+## Intents (choose one)
+
+| Intent            | Example phrasings                                                                                    | Route to                                           |
+| ----------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **full_feature**  | "I want to build X", "Add avatar upload", "New feature: user profiles", "We need to implement Y"     | requirements-agent → full pipeline                 |
+| **continue_task** | "Implement T03", "Run the api-agent for T02", "Do the next task", "Continue the plan", "Execute T05" | planner or specific agent for that task            |
+| **quick_change**  | "Fix the bug in auth.ts", "Add validation to X", "Refactor this function", "Update the login form"   | Direct to relevant executor (db/api/auth/ui agent) |
+| **review_only**   | "Review my changes", "Check this PR", "Review the code", "Run the reviewer"                          | reviewer-agent                                     |
+| **question**      | "How does X work?", "Why is Y failing?", "Explain the auth flow"                                     | Answer directly; no pipeline                       |
+
+## Classification Rules
+
+- **Uncertain** → Ask: "Do you want to start a new feature (full pipeline), continue a task from the plan, or make a quick change?"
+- **Explicit task reference** (T01, T02, etc.) → `continue_task`
+- **Explicit agent name** ("use the reviewer", "run mutation-tester") → Route to that agent
+- **Describe a new capability** → `full_feature`
+- **Small, scoped change** → `quick_change`
+
+## New Chat per Ticket
+
+For focused work, start a new chat for each ticket or small task. Begin with:
+
+- "Implement T03" (continues from plan)
+- "Fix the validation in upload.ts" (quick change)
+- "Review the changes for T02" (review only)
+
+This keeps context clean and avoids pipeline confusion.

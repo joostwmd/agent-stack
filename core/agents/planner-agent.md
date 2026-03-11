@@ -133,6 +133,7 @@ Artifact: .cursor/tickets/<feature>/test-spec.md
 Commit message: test-spec: define acceptance tests for <feature>
 Depends on: —
 Risk: low
+After completion: Run reviewer-agent for this task, then commit. Review runs automatically.
 ```
 
 ### 4. Parallel Groups
