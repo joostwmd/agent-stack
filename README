@@ -11,23 +11,26 @@ Shared across projects via git submodule. Improve a prompt once — every projec
 ```
 agent-stack/
 ├── agents/
-│   ├── planning/                     # Reasoning models — produce documents
+│   ├── discovery/                    # Phase 0 — requirements, UI spec, test strategy
 │   │   ├── requirements-agent.md     # Dialog → 00-requirements.md
 │   │   ├── ux-designer-agent.md      # Dialog → 01-ui-spec.md (conditional)
-│   │   ├── test-strategist-agent.md  # → 02-test-spec.md
+│   │   └── test-strategist-agent.md  # → 02-test-spec.md
+│   ├── planning/                     # Phase 1 — plan and tickets
 │   │   ├── orchestrator-agent.md     # → 03-plan.md
-│   │   ├── ticket-writer-agent.md    # → tickets/T*.md
-│   │   └── reviewer-agent.md         # Final review
-│   └── execution/                    # Fast models — produce code
-│       ├── db-agent.md
-│       ├── storage-agent.md
-│       ├── api-agent.md
-│       ├── auth-agent.md
-│       ├── ui-agent.md
-│       ├── test-writer-agent.md      # Unit + integration tests
-│       ├── e2e-test-writer-agent.md
-│       ├── test-runner-agent.md      # Runs full suite, self-heals E2E
-│       └── mutation-tester-agent.md
+│   │   └── ticket-writer-agent.md    # → tickets/T*.md
+│   ├── execution/                    # Phase 2 — code implementation
+│   │   ├── db-agent.md
+│   │   ├── storage-agent.md
+│   │   ├── api-agent.md
+│   │   ├── auth-agent.md
+│   │   ├── ui-agent.md
+│   │   ├── test-writer-agent.md      # Unit + integration tests
+│   │   └── e2e-test-writer-agent.md
+│   ├── testing/                      # Phase 3 — run tests, mutation testing
+│   │   ├── test-runner-agent.md      # Runs full suite, self-heals E2E
+│   │   └── mutation-tester-agent.md
+│   └── validation/                   # Phase 4 — final review
+│       └── reviewer-agent.md
 ├── skills/
 │   ├── agent-registry.md
 │   ├── supabase.md
@@ -58,32 +61,43 @@ agent-stack/
 
 ## 5-Phase Pipeline
 
-| Phase | Agents | Output |
-|-------|--------|--------|
-| **0. Discovery** | requirements-agent, ux-designer-agent*, test-strategist-agent | 00-requirements.md, 01-ui-spec.md, 02-test-spec.md |
-| **1. Planning** | orchestrator-agent, ticket-writer-agent | 03-plan.md, tickets/T*.md |
-| **2. Execution** | test-writer-agent, e2e-test-writer-agent, db-agent, storage-agent, api-agent, auth-agent, ui-agent | Code files |
-| **3. Testing** | test-runner-agent, mutation-tester-agent | Test results, fixes |
-| **4. Review** | reviewer-agent | Review appended to plan, commit snippet |
+| Phase | Directory | Agents | Output |
+|-------|-----------|--------|--------|
+| **0. Discovery** | `agents/discovery/` | requirements-agent, ux-designer-agent*, test-strategist-agent | 00-requirements.md, 01-ui-spec.md, 02-test-spec.md |
+| **1. Planning** | `agents/planning/` | orchestrator-agent, ticket-writer-agent | 03-plan.md, tickets/T*.md |
+| **2. Execution** | `agents/execution/` | test-writer-agent, e2e-test-writer-agent, db-agent, storage-agent, api-agent, auth-agent, ui-agent | Code files |
+| **3. Testing** | `agents/testing/` | test-runner-agent, mutation-tester-agent | Test results, fixes |
+| **4. Validation** | `agents/validation/` | reviewer-agent | Review appended to plan, commit snippet |
 
 *ux-designer-agent runs only when the feature has UI.
 
 **Artifact flow:**
 
 ```
-00-requirements.md  ← requirements-agent (dialog)
-01-ui-spec.md      ← ux-designer-agent (dialog, conditional)
-02-test-spec.md    ← test-strategist-agent
+00-requirements.md  ← requirements-agent (discovery)
+01-ui-spec.md      ← ux-designer-agent (discovery, conditional)
+02-test-spec.md    ← test-strategist-agent (discovery)
 
          ↓ all 3 feed into
 
-03-plan.md         ← orchestrator-agent
+03-plan.md         ← orchestrator-agent (planning)
 
          ↓ plan feeds into
 
-tickets/T01-*.md, T02-*.md, ...  ← ticket-writer-agent
+tickets/T01-*.md, T02-*.md, ...  ← ticket-writer-agent (planning)
 
          ↓ each ticket feeds its execution agent
+
+         execution agents produce code
+
+         ↓ then
+
+test-runner-agent (testing)  → runs suite, fixes failures
+mutation-tester-agent (testing)  → Stryker, kills survivors
+
+         ↓ finally
+
+reviewer-agent (validation)  → review, commit snippet
 ```
 
 ---

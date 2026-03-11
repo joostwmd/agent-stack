@@ -11,7 +11,7 @@ invent agent names that are not listed here.
 
 ---
 
-## Planning Agents (Phase 0–1)
+## Discovery Agents (Phase 0)
 
 ### requirements-agent
 
@@ -34,6 +34,8 @@ invent agent names that are not listed here.
 - **Responsible for:** Test strategy — unit, integration, E2E classification from requirements
 - **Output artifact:** `.cursor/tickets/<feature>/02-test-spec.md`
 
+## Planning Agents (Phase 1)
+
 ### orchestrator-agent
 
 - **Phase:** Planning
@@ -48,16 +50,18 @@ invent agent names that are not listed here.
 - **Responsible for:** Per-task tickets with skills + Context7 snippets
 - **Output artifact:** `.cursor/tickets/<feature>/tickets/T<NN>-<slug>.md`
 
+## Validation Agents (Phase 4)
+
 ### reviewer-agent
 
-- **Phase:** Review
+- **Phase:** Validation
 - **Layer:** Review
 - **Responsible for:** Final review of artifacts, AC verification, commit snippet
 - **Output artifact:** Review appended to plan, `.cursor/review-append.txt`
 
 ---
 
-## Execution Agents (Phase 2–3)
+## Execution Agents (Phase 2)
 
 ### db-agent
 
@@ -107,6 +111,10 @@ invent agent names that are not listed here.
 - **Responsible for:** E2E tests from test spec. Runs before implementation.
 - **Output artifact:** `tests/e2e/*.spec.ts` or `e2e/*.spec.ts`
 - **Skills:** (from test spec)
+
+---
+
+## Testing Agents (Phase 3)
 
 ### test-runner-agent
 
