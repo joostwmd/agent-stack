@@ -15,7 +15,7 @@ When the user sends a message, classify the intent and route accordingly. Use th
 | Intent            | Example phrasings                                                                                    | Route to                                           |
 | ----------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | **full_feature**  | "I want to build X", "Add avatar upload", "New feature: user profiles", "We need to implement Y"     | requirements-agent → full pipeline                 |
-| **continue_task** | "Implement T03", "Run the api-agent for T02", "Do the next task", "Continue the plan", "Execute T05" | planner or specific agent for that task            |
+| **continue_task** | "Implement T03", "Run the api-agent for T02", "Do the next task", "Continue the plan", "Execute T05" | orchestrator-agent or specific agent for that task |
 | **quick_change**  | "Fix the bug in auth.ts", "Add validation to X", "Refactor this function", "Update the login form"   | Direct to relevant executor (db/api/auth/ui agent) |
 | **review_only**   | "Review my changes", "Check this PR", "Review the code", "Run the reviewer"                          | reviewer-agent                                     |
 | **question**      | "How does X work?", "Why is Y failing?", "Explain the auth flow"                                     | Answer directly; no pipeline                       |

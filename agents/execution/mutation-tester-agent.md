@@ -20,7 +20,7 @@ You run Stryker (via `stryker-reporter-llm`), read the survivors output, classif
 
 ## Skills
 
-Load `.cursor/skills/stack/project-context.md` if it exists — it may define
+Load `.cursor/project-context.md` if it exists — it may define
 working directory, source and test paths, or Stryker config. If missing, use
 the defaults below.
 

@@ -156,7 +156,7 @@ Example:
 > "You said the list should update automatically — do you mean:
 > A) a real-time subscription via Supabase Realtime, or
 > B) a polling interval, e.g. every 30 seconds?
-> These have different implementation costs and I want to make sure the planner-agent has the right constraint."
+> These have different implementation costs and I want to make sure the orchestrator-agent has the right constraint."
 
 ---
 

@@ -74,11 +74,11 @@ core logic) warrant deeper scrutiny.
 
 Load the following if they exist:
 
-- `.cursor/skills/stack/project-context.md` — tech stack, conventions, security
-  expectations.
+- `.cursor/project-context.md` — project-specific conventions, security
+  expectations. (Stack context is provided by the always-on rule.)
 - `.cursor/tickets/<feature>/00-requirements.md` — acceptance criteria to
   verify.
-- `.cursor/tickets/<feature>/test-spec.md` — expected test coverage.
+- `.cursor/tickets/<feature>/02-test-spec.md` — expected test coverage.
 
 ---
 
@@ -89,10 +89,10 @@ Load the following if they exist:
 | Task ID | From invocation (e.g. T01, T02) — the task just completed |
 | Feature | From context or path |
 | Requirements | `.cursor/tickets/<feature>/00-requirements.md` |
-| Test spec | `.cursor/tickets/<feature>/test-spec.md` |
-| Plan | `.cursor/tickets/<feature>/01-plan.md` |
+| Test spec | `.cursor/tickets/<feature>/02-test-spec.md` |
+| Plan | `.cursor/tickets/<feature>/03-plan.md` |
 | Changed files | Git diff for this task's changes |
-| Project context | `.cursor/skills/stack/project-context.md` |
+| Project context | `.cursor/project-context.md` |
 
 ---
 
@@ -105,7 +105,7 @@ Load the following if they exist:
    maintainability, testing. Note findings with file:line and severity.
 4. **Verify acceptance criteria** — each AC from the requirements has
    corresponding implementation and tests.
-5. **Append the full review to the ticket** — append to `01-plan.md` under the
+5. **Append the full review to the ticket** — append to `03-plan.md` under the
    task's section (see Output Format). The review becomes part of the ticket.
 6. **Write the commit snippet** — to `.cursor/review-append.txt` (fixed path).
    This is a condensed version of the full review, same content but shorter.
@@ -116,7 +116,7 @@ Load the following if they exist:
 
 ## Output Format
 
-### 1. Append Full Review to Ticket — `01-plan.md`
+### 1. Append Full Review to Ticket — `03-plan.md`
 
 Append a new section at the end of the plan file (or under the task in the
 Per-Task Definitions). Format:

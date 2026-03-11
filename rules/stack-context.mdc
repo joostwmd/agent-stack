@@ -1,0 +1,14 @@
+---
+description: Tech stack — Supabase, Better Auth, Hono, tRPC, React, TanStack, Shadcn
+alwaysApply: true
+---
+
+# Stack Context
+
+**Tech stack:** Supabase (DB + storage), Drizzle (ORM), Better Auth, Hono, tRPC, React, TanStack Router + Query, Shadcn, TypeScript (strict).
+
+**Auth:** Better Auth enforces permissions at the application layer. No RLS at DB.
+
+**Testing:** PGlite (in-memory Postgres), Better Auth testUtils, Playwright (E2E), Vitest. Integration test pattern: `createUser → saveUser → getAuthHeaders → call route → assert → cleanup`.
+
+**Conventions:** Integration tests are primary; prefer them over unit tests for API/auth boundaries.

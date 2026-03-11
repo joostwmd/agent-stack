@@ -1,138 +1,154 @@
 # agent-stack
 
-My personal AI agent configuration repo. Contains all agent definitions, skills, hooks, and stack configurations for agentic coding in Cursor.
+AI agent configuration for agentic coding in Cursor. Single stack: Supabase, Better Auth, Hono, tRPC, React, TanStack Router + Query, Shadcn.
 
 Shared across projects via git submodule. Improve a prompt once — every project gets it.
 
 ---
 
 ## What's Inside
+
 ```
 agent-stack/
-├── core/                          # Tech-agnostic agents (work for any project)
-│   ├── agents/
-│   │   ├── requirements-agent.md  # Produces Given/When/Then acceptance criteria
-│   │   ├── planner-agent.md       # Breaks features into ordered atomic tasks
-│   │   ├── ticket-writer-agent.md # Enriches tasks into full ticket documents
-│   │   ├── test-definer-agent.md  # Defines unit vs e2e split and coverage goals
-│   │   ├── mutation-tester-agent.md # Reads Stryker report, flags test gaps
-│   │   └── reviewer-agent.md      # Final cross-layer sign-off
-│   ├── rules/
-│   │   └── intent-routing.mdc    # Classify requests → full feature / continue / quick fix / review
-│   └── hooks/
-│       ├── cursor/               # Cursor hooks (event-driven)
-│       │   ├── event-logger.js   # Logs all hook events to ~/.cursor/hooks-logs/
-│       │   ├── block-dangerous-commands.js  # PreToolUse: blocks rm -rf ~, curl|sh, etc.
-│       │   └── post-tool-use-check.js       # PostToolUse: eslint + tsc after file write
-│       └── git/                  # Git hooks (copied to .git/hooks/ on setup)
-│           └── commit-msg-append-review.sh    # Appends .cursor/review-append.txt to commit body
-│
-├── stacks/                        # Tech-specific agent bundles
-│   ├── react-hono-trpc/           # React + Hono + tRPC + Drizzle + Supabase + Better Auth
-│   │   ├── agents/
-│   │   │   ├── db-agent.md        # Drizzle schema + Supabase migrations
-│   │   │   ├── storage-agent.md   # Supabase Storage buckets + RLS policies
-│   │   │   ├── api-agent.md       # Hono routes + tRPC routers
-│   │   │   ├── auth-agent.md      # Better Auth wiring + session typing
-│   │   │   ├── ui-design-agent.md # Component tree, layout, states
-│   │   │   ├── ui-agent.md        # React + Shadcn implementation
-│   │   │   ├── unit-test-writer-agent.md # Failing Vitest specs
-│   │   │   ├── e2e-test-writer-agent.md  # Failing Playwright specs
-│   │   │   └── e2e-runner-agent.md       # Runs + self-heals Playwright tests
-│   │   └── skills/
-│   │       ├── agent-registry.md   # Agents + layers (planner loads this)
-│   │       ├── trpc-patterns.md
-│   │       ├── shadcn-conventions.md
-│   │       ├── better-auth-rules.md
-│   │       ├── drizzle-schema.md
-│   │       ├── supabase-storage.md
-│   │       └── typescript-strict.md
-│   │
-│   └── electron/                  # Electron overrides on top of react-hono-trpc
-│       ├── agents/
-│       │   └── ui-agent.md        # Overrides base ui-agent (no Shadcn, native UI)
-│       └── skills/
-│           └── electron-ipc.md
-│
-└── commands/
-    └── commit.md                  # /commit slash command definition
+├── agents/
+│   ├── planning/                     # Reasoning models — produce documents
+│   │   ├── requirements-agent.md     # Dialog → 00-requirements.md
+│   │   ├── ux-designer-agent.md      # Dialog → 01-ui-spec.md (conditional)
+│   │   ├── test-strategist-agent.md  # → 02-test-spec.md
+│   │   ├── orchestrator-agent.md     # → 03-plan.md
+│   │   ├── ticket-writer-agent.md    # → tickets/T*.md
+│   │   └── reviewer-agent.md         # Final review
+│   └── execution/                    # Fast models — produce code
+│       ├── db-agent.md
+│       ├── storage-agent.md
+│       ├── api-agent.md
+│       ├── auth-agent.md
+│       ├── ui-agent.md
+│       ├── test-writer-agent.md      # Unit + integration tests
+│       ├── e2e-test-writer-agent.md
+│       ├── test-runner-agent.md      # Runs full suite, self-heals E2E
+│       └── mutation-tester-agent.md
+├── skills/
+│   ├── agent-registry.md
+│   ├── supabase.md
+│   ├── drizzle.md
+│   ├── better-auth.md
+│   ├── hono.md
+│   ├── trpc.md
+│   ├── react.md
+│   ├── tanstack.md
+│   ├── shadcn.md
+│   └── typescript.md
+├── rules/
+│   ├── stack-context.mdc             # Always-on: tech stack, auth, testing
+│   └── intent-routing.mdc            # Classify: full feature / continue / quick fix / review
+├── hooks/
+│   ├── cursor/
+│   │   ├── event-logger.js
+│   │   ├── block-dangerous-commands.js
+│   │   └── post-tool-use-check.js
+│   └── git/
+│       └── commit-msg-append-review.sh
+├── commands/
+│   └── commit.md
+└── README
 ```
 
 ---
 
-## Agent Pipeline
+## 5-Phase Pipeline
+
+| Phase | Agents | Output |
+|-------|--------|--------|
+| **0. Discovery** | requirements-agent, ux-designer-agent*, test-strategist-agent | 00-requirements.md, 01-ui-spec.md, 02-test-spec.md |
+| **1. Planning** | orchestrator-agent, ticket-writer-agent | 03-plan.md, tickets/T*.md |
+| **2. Execution** | test-writer-agent, e2e-test-writer-agent, db-agent, storage-agent, api-agent, auth-agent, ui-agent | Code files |
+| **3. Testing** | test-runner-agent, mutation-tester-agent | Test results, fixes |
+| **4. Review** | reviewer-agent | Review appended to plan, commit snippet |
+
+*ux-designer-agent runs only when the feature has UI.
+
+**Artifact flow:**
+
 ```
-requirements-agent → ticket-writer-agent → planner-agent → test-definer-agent
-                                                                        ↓
-                                    unit-test-writer + e2e-test-writer  ← failing specs first
-                                                                        ↓
-                              db → storage → api → auth → ui   ← each atomic commit
-                                                                        ↓
-                                    e2e-runner → mutation-tester → reviewer  ← mutation testing is a plan task, not a git hook
-                                                                        ↓
-                                    commit (hook appends review to message)
+00-requirements.md  ← requirements-agent (dialog)
+01-ui-spec.md      ← ux-designer-agent (dialog, conditional)
+02-test-spec.md    ← test-strategist-agent
+
+         ↓ all 3 feed into
+
+03-plan.md         ← orchestrator-agent
+
+         ↓ plan feeds into
+
+tickets/T01-*.md, T02-*.md, ...  ← ticket-writer-agent
+
+         ↓ each ticket feeds its execution agent
+```
+
+---
+
+## Example Feature Artifact Structure
+
+After a full pipeline run for feature `avatar-upload`:
+
+```
+.cursor/tickets/avatar-upload/
+├── 00-requirements.md
+├── 01-ui-spec.md
+├── 02-test-spec.md
+├── 03-plan.md
+└── tickets/
+    ├── T01-uploads-schema.md
+    ├── T02-avatar-bucket.md
+    ├── T03-upload-mutation.md
+    ├── T04-upload-auth-guard.md
+    ├── T05-upload-form.md
+    ├── T06-unit-integration-tests.md
+    ├── T07-e2e-tests.md
+    ├── T08-test-run.md
+    ├── T09-mutation-testing.md
+    └── T10-review.md
 ```
 
 ---
 
 ## Setting Up in a New Project
 
-### 1. Add as a submodule
+### 1. Add as submodule
+
 ```bash
 git submodule add git@github.com:you/agent-stack.git .cursor/shared
 git submodule update --init
 ```
 
-### 2. Symlink into Cursor's expected paths
+### 2. Symlink into Cursor paths
+
 ```bash
-# Core — always loaded in every project
-ln -s .cursor/shared/core/agents   .cursor/agents/core
+ln -s shared/agents   .cursor/agents
+ln -s shared/skills   .cursor/skills
+ln -s shared/rules    .cursor/rules
+ln -s shared/hooks    .cursor/hooks
+ln -s shared/commands .cursor/commands
+```
 
-# Stack — pick your stack
-ln -s .cursor/shared/stacks/react-hono-trpc/agents  .cursor/agents/stack
-ln -s .cursor/shared/stacks/react-hono-trpc/skills  .cursor/skills/stack
+### 3. Git commit-msg hook
 
-# Rules (intent classification for routing)
-ln -s .cursor/shared/core/rules  .cursor/rules/core
-
-# Hooks (Cursor event hooks + Git hooks)
-ln -s .cursor/shared/core/hooks  .cursor/hooks
-ln -s .cursor/shared/commands    .cursor/commands
-
-# Git commit-msg hook (appends review snippet to commit body)
-cp .cursor/shared/core/hooks/git/commit-msg-append-review.sh .git/hooks/commit-msg
+```bash
+cp .cursor/shared/hooks/git/commit-msg-append-review.sh .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
 ```
 
-For an Electron project, add the override layer on top:
-```bash
-ln -s .cursor/shared/stacks/electron/agents  .cursor/agents/electron
-ln -s .cursor/shared/stacks/electron/skills  .cursor/skills/electron
-```
+### 4. Project context (optional)
 
-### 3. Create your project AGENT.md
-```bash
-touch .cursor/AGENT.md
-```
+Create `.cursor/project-context.md` in your project for project-specific overrides (not in the submodule). The stack-context rule is always loaded; project-context adds project-specific testing paths, Stryker config, etc.
 
-Minimal content:
-```markdown
-## Stack
-react-hono-trpc
+---
 
-## Layers loaded
-- .cursor/agents/core
-- .cursor/agents/stack
+## MCP Servers
 
-## Project-specific notes
-- DB: Supabase (self-hosted)
-- Auth: Better Auth with session strategy
-- No overrides — all shared agents apply as-is
-```
+Configure `.cursor/mcp.json` in your project for Supabase, Playwright, Figma (optional), Context7:
 
-### 4. Configure MCP servers
-
-Create `.cursor/mcp.json` in your project:
 ```json
 {
   "mcpServers": {
@@ -158,50 +174,26 @@ Create `.cursor/mcp.json` in your project:
 
 ## Keeping Projects Up to Date
 
-When you improve an agent or skill in this repo:
 ```bash
-# In agent-stack
-git commit -m "refactor: improve ticket-writer prompt"
-git push
-
-# In any project using it
+# In any project using agent-stack
 git submodule update --remote --merge
 ```
 
-Add this alias to your shell to make it a one-liner:
-```bash
-# .zshrc or .bashrc
-alias ai-sync="git submodule update --remote --merge"
-```
-
-Then syncing any project is just:
-```bash
-ai-sync
-```
-
----
-
-## Override Priority
-
-When Cursor loads agents and skills, project-level files always win:
-```
-1. .cursor/agents/          ← project-specific, highest priority
-2. .cursor/agents/electron  ← electron stack override (if loaded)
-3. .cursor/agents/stack     ← base stack (react-hono-trpc)
-4. .cursor/agents/core      ← tech-agnostic baseline
-```
+Alias: `alias ai-sync="git submodule update --remote --merge"`
 
 ---
 
 ## Versioning
 
-Tag stable states of the repo so projects can pin to a known-good version:
+Tag stable states:
+
 ```bash
-git tag -a v1.0.0 -m "stable: react-hono-trpc stack complete"
+git tag -a v1.0.0 -m "stable: single-stack complete"
 git push --tags
 ```
 
-Pin a project to a specific version:
+Pin a project to a version:
+
 ```bash
 cd your-project
 git -C .cursor/shared checkout v1.0.0
