@@ -17,10 +17,6 @@ agent-stack/
 │   │   ├── test-definer-agent.md  # Defines unit vs e2e split and coverage goals
 │   │   ├── mutation-tester-agent.md # Reads Stryker report, flags test gaps
 │   │   └── reviewer-agent.md      # Final cross-layer sign-off
-│   └── skills/
-│       ├── atomic-commits.md      # Conventional commits, one concern per commit
-│       ├── ticket-format.md       # Standard ticket structure all agents follow
-│       └── tdd-flow.md            # Red → green → refactor discipline
 │   ├── rules/
 │   │   └── intent-routing.mdc    # Classify requests → full feature / continue / quick fix / review
 │   └── hooks/
@@ -91,7 +87,6 @@ git submodule update --init
 ```bash
 # Core — always loaded in every project
 ln -s .cursor/shared/core/agents   .cursor/agents/core
-ln -s .cursor/shared/core/skills   .cursor/skills/core
 
 # Stack — pick your stack
 ln -s .cursor/shared/stacks/react-hono-trpc/agents  .cursor/agents/stack

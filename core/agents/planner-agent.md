@@ -139,6 +139,11 @@ Risk: low
 After completion: Run reviewer-agent for this task, then commit. Review runs automatically.
 ```
 
+**Commit message convention:** Use conventional commits: `type(scope): short
+description`. Types: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`. Scope
+is optional. Examples: `feat(upload): add file size validation`,
+`test-spec: define acceptance tests for <feature>`.
+
 ### 4. Parallel Groups
 
 A plain-English list of which tasks can run simultaneously and why.

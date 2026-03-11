@@ -24,17 +24,9 @@ agents.
 
 ---
 
-## Skills
+## Stack Inputs
 
-Load the following skill files before starting if they exist.
-
-**Core skills** (planning-related, shared across stacks):
-
-- `.cursor/skills/core/ticket-format.md` — expected structure for tickets.
-- `.cursor/skills/core/atomic-commits.md` — commit conventions.
-- `.cursor/skills/core/tdd-flow.md` — test-driven development discipline.
-
-**Stack skills** (stack-specific, provided by the active stack):
+Load the following before starting if they exist:
 
 - `.cursor/skills/stack/project-context.md` — tech stack, libraries, existing
   conventions, and standing constraints. If the file does not exist, continue
@@ -44,6 +36,10 @@ Load the following skill files before starting if they exist.
 
 Other skills in `.cursor/skills/stack/` (e.g. `better-auth-rules.md`,
 `drizzle-schema.md`) may be relevant; load them if the ticket would benefit.
+
+**Ticket structure** is defined in the Output Format section below. Keep each
+ticket atomic — one ticket maps to one commit. The planner assigns conventional
+commit messages (`type(scope): description`) to tasks.
 
 ---
 
@@ -107,7 +103,6 @@ Rules for using Context7:
 | Input | Source |
 |-------|--------|
 | Raw feature request | User message |
-| Core skills | `.cursor/skills/core/*.md` (ticket-format, atomic-commits, tdd-flow) |
 | Stack skills | `.cursor/skills/stack/*.md` (project-context, agent-registry, etc.) |
 | Library docs | Context7 MCP (fetched in final step) |
 
@@ -137,9 +132,9 @@ Do not produce a requirements document until each is resolved.
 
 Follow these steps in order. Do not skip any step.
 
-1. **Load project context and skills** — read `.cursor/skills/core/` and
-   `.cursor/skills/stack/` (ticket-format, project-context, agent-registry).
-   Note any libraries and standing constraints that apply.
+1. **Load project context** — read `.cursor/skills/stack/project-context.md`
+   and `.cursor/skills/stack/agent-registry.md`. Note any libraries and
+   standing constraints that apply.
 2. **Read the raw request** — identify the actor (who), the action (what they
    do), and the outcome (what the system does in response).
 3. **Check for ambiguity** — apply Hard Stop Conditions above. If any fire,

@@ -23,22 +23,19 @@ tests.
 
 ---
 
-## Skills
+## Stack Inputs
 
-Load the following skill files before starting if they exist:
-
-**Core skills:**
-
-- `.cursor/skills/core/tdd-flow.md` — test-driven development discipline.
-
-**Stack skills:**
+Load the following before starting if they exist:
 
 - `.cursor/skills/stack/project-context.md` — tech stack, auth approach
-  (e.g. Better Auth at application layer vs RLS at DB), and testing setup
-  (e.g. PGlite for integration, Better Auth testUtils). Informs which layers
-  to cover and how to classify tests.
+  (e.g. Better Auth at application layer vs RLS at DB), and testing setup.
+  Informs which layers to cover and how to classify tests.
 - `.cursor/skills/stack/agent-registry.md` — layers and agents (for
   understanding the system boundary).
+
+**TDD discipline:** You run first in every execution plan. Test-writer agents
+use your spec to produce failing tests; implementation agents run only after
+those tests exist. Your output is the input for red-phase tests.
 
 ---
 
