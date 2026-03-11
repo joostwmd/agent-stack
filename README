@@ -21,8 +21,15 @@ agent-stack/
 │       ├── atomic-commits.md      # Conventional commits, one concern per commit
 │       ├── ticket-format.md       # Standard ticket structure all agents follow
 │       └── tdd-flow.md            # Red → green → refactor discipline
-│   └── rules/
-│       └── intent-routing.mdc    # Classify requests → full feature / continue / quick fix / review
+│   ├── rules/
+│   │   └── intent-routing.mdc    # Classify requests → full feature / continue / quick fix / review
+│   └── hooks/
+│       ├── cursor/               # Cursor hooks (event-driven)
+│       │   ├── event-logger.js   # Logs all hook events to ~/.cursor/hooks-logs/
+│       │   ├── block-dangerous-commands.js  # PreToolUse: blocks rm -rf ~, curl|sh, etc.
+│       │   └── post-tool-use-check.js       # PostToolUse: eslint + tsc after file write
+│       └── git/                  # Git hooks (copied to .git/hooks/ on setup)
+│           └── commit-msg-append-review.sh    # Appends .cursor/review-append.txt to commit body
 │
 ├── stacks/                        # Tech-specific agent bundles
 │   ├── react-hono-trpc/           # React + Hono + tRPC + Drizzle + Supabase + Better Auth
@@ -51,12 +58,6 @@ agent-stack/
 │       └── skills/
 │           └── electron-ipc.md
 │
-├── hooks/                         # Shell scripts
-│   ├── post-edit-typecheck.sh     # Cursor: tsc after file write
-│   ├── post-edit-lint.sh          # Cursor: ESLint after file write
-│   ├── pre-bash-approval.sh       # Cursor: surface commands for approval
-│   └── commit-msg-append-review.sh # Git: appends .cursor/review-append.txt to commit body
-│
 └── commands/
     └── commit.md                  # /commit slash command definition
 ```
@@ -71,7 +72,7 @@ requirements-agent → ticket-writer-agent → planner-agent → test-definer-ag
                                                                         ↓
                               db → storage → api → auth → ui   ← each atomic commit
                                                                         ↓
-                                    e2e-runner → mutation-tester → reviewer  ← auto-runs per task
+                                    e2e-runner → mutation-tester → reviewer  ← mutation testing is a plan task, not a git hook
                                                                         ↓
                                     commit (hook appends review to message)
 ```
@@ -99,12 +100,12 @@ ln -s .cursor/shared/stacks/react-hono-trpc/skills  .cursor/skills/stack
 # Rules (intent classification for routing)
 ln -s .cursor/shared/core/rules  .cursor/rules/core
 
-# Shared tooling
-ln -s .cursor/shared/hooks     .cursor/hooks
-ln -s .cursor/shared/commands  .cursor/commands
+# Hooks (Cursor event hooks + Git hooks)
+ln -s .cursor/shared/core/hooks  .cursor/hooks
+ln -s .cursor/shared/commands    .cursor/commands
 
 # Git commit-msg hook (appends review snippet to commit body)
-cp .cursor/shared/hooks/commit-msg-append-review.sh .git/hooks/commit-msg
+cp .cursor/shared/core/hooks/git/commit-msg-append-review.sh .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
 ```
 

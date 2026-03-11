@@ -79,6 +79,20 @@ Load the following skill files before starting if they exist:
    If the stack uses an in-memory DB for tests (e.g. PGlite), integration
    tests verify API + DB wiring without a browser.
 
+9. **Integration tests are the primary test layer for agentic development.**
+   AI-generated code is most likely to fail at the boundaries — where one
+   component hands off to another. An integration test that covers a complete
+   request path (auth check → handler → DB write → response) catches more
+   real bugs than several unit tests of the individual parts, because the
+   parts in isolation are usually correct; the wiring between them is where
+   errors live.
+
+   Write integration tests aggressively. Every API route, every auth
+   boundary, and every DB write path should have at least one integration
+   test. Consult project-context.md for the specific testing tools and
+   setup patterns this stack uses. When in doubt between a unit test and an
+   integration test for the same behaviour, prefer the integration test.
+
 ---
 
 ## Test Type Classification
@@ -110,6 +124,7 @@ Use project-context to classify correctly. Default guidance:
 | Requirements doc | `.cursor/tickets/<feature>/00-requirements.md` |
 | Project context | `.cursor/skills/stack/project-context.md` (if present) |
 | Agent registry | `.cursor/skills/stack/agent-registry.md` |
+| tests/ directory | `tests/` (if it exists) |
 
 ---
 
@@ -137,6 +152,13 @@ Follow these steps in order. Do not skip any step.
 
 1. **Load project context** — read `.cursor/skills/stack/project-context.md`
    if it exists. Note the tech stack, auth approach, and testing conventions.
+
+1b. **Scan test folder** — read the `tests/` directory if it exists. List
+    every existing subdomain folder (e.g. `auth/`, `billing/`, `upload/`).
+    For the current feature, decide which subfolder it belongs to. If an
+    existing folder matches the domain, use it. If not, propose a new
+    short, lowercase, kebab-case domain name. Record this as the base
+    path for the Suggested Test File Layout in the output.
 
 2. **Read the requirements document** — parse every acceptance criterion,
    the technical spec, and the out-of-scope section.
@@ -268,6 +290,24 @@ Flag any criterion with no test case.
 A bullet list of behaviours that were considered but deliberately excluded
 from this test spec, and why. Derived from the Out of Scope section of the
 requirements document.
+
+### 7. Suggested Test File Layout
+
+A file tree showing where each test case should live. Unit and integration
+tests go under `tests/<domain>/`. E2E tests go under `tests/e2e/`.
+
+Example:
+
+```
+tests/
+  upload/
+    upload-handler.test.ts    # UT-01, UT-02, IT-01, IT-02
+    upload-validation.test.ts # UT-03, UT-04
+  e2e/
+    avatar-upload.test.ts     # E2E-01, E2E-02
+```
+
+If the domain subfolder does not exist yet, mark it with `(new)`.
 
 ---
 

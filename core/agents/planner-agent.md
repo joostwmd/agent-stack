@@ -119,7 +119,10 @@ it as if explaining your decisions to a reviewer.
 |------|---------|-------|------------|---------------|
 | 1 | T01 | test-definer-agent | — | — |
 | 2 | T02 | unit-test-writer-agent | T01 | T03 |
+| 3 | T03 | e2e-test-writer-agent | T01 | T02 |
 | ... | ... | ... | ... | ... |
+| N-1 | T_N-1 | mutation-tester-agent | all impl tasks | — |
+| N | T_N | reviewer-agent | T_N-1 | — |
 
 ### 3. Per-Task Definitions
 
@@ -154,3 +157,13 @@ deliberately does not address, and why.
 - Do not assign a task to an agent not in the registry.
 - Do not assume knowledge about how an agent works internally.
 - Do not produce a plan if any Hard Stop Condition is active.
+- Tests always come first. T01 MUST be assigned to test-definer-agent. The
+  next tasks after T01 MUST be test-writer agents (unit-test-writer-agent,
+  e2e-test-writer-agent). No implementation agent (db-agent, storage-agent,
+  api-agent, auth-agent, ui-agent) may appear in the execution order before
+  all test-writer tasks are listed. This is non-negotiable.
+- Mutation testing always runs last before review. The penultimate task in
+  every plan MUST be assigned to mutation-tester-agent, and it MUST depend
+  on all implementation tasks (db-agent, storage-agent, api-agent, auth-agent,
+  ui-agent). The final task MUST be reviewer-agent, depending on
+  mutation-tester-agent. These two tasks are non-negotiable.
