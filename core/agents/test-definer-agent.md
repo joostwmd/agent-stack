@@ -99,11 +99,11 @@ Load the following skill files before starting if they exist:
 
 Use project-context to classify correctly. Default guidance:
 
-| Type | What it tests | Dependencies | Example |
-|------|---------------|--------------|---------|
-| **Unit** | Pure logic in isolation | Mocked / stubbed | `validateFileSize(file)` returns false for 6MB |
+| Type            | What it tests                                      | Dependencies                    | Example                                                     |
+| --------------- | -------------------------------------------------- | ------------------------------- | ----------------------------------------------------------- |
+| **Unit**        | Pure logic in isolation                            | Mocked / stubbed                | `validateFileSize(file)` returns false for 6MB              |
 | **Integration** | Wiring between components (API + DB, auth + route) | Real or in-memory DB, real auth | `POST /upload` with valid auth saves record and returns 201 |
-| **E2E** | Full user flow through UI | Real browser, real data flow | User uploads file, sees success message |
+| **E2E**         | Full user flow through UI                          | Real browser, real data flow    | User uploads file, sees success message                     |
 
 - **Unit** — data transforms, validation rules, request/response shape checks.
   No DB, no auth, no network.
@@ -119,12 +119,12 @@ Use project-context to classify correctly. Default guidance:
 
 ## Inputs
 
-| Input | Location |
-|-------|----------|
-| Requirements doc | `.cursor/tickets/<feature>/00-requirements.md` |
-| Project context | `.cursor/skills/stack/project-context.md` (if present) |
-| Agent registry | `.cursor/skills/stack/agent-registry.md` |
-| tests/ directory | `tests/` (if it exists) |
+| Input            | Location                                               |
+| ---------------- | ------------------------------------------------------ |
+| Requirements doc | `.cursor/tickets/<feature>/00-requirements.md`         |
+| Project context  | `.cursor/skills/stack/project-context.md` (if present) |
+| Agent registry   | `.cursor/skills/stack/agent-registry.md`               |
+| tests/ directory | `tests/` (if it exists)                                |
 
 ---
 
@@ -154,11 +154,11 @@ Follow these steps in order. Do not skip any step.
    if it exists. Note the tech stack, auth approach, and testing conventions.
 
 1b. **Scan test folder** — read the `tests/` directory if it exists. List
-    every existing subdomain folder (e.g. `auth/`, `billing/`, `upload/`).
-    For the current feature, decide which subfolder it belongs to. If an
-    existing folder matches the domain, use it. If not, propose a new
-    short, lowercase, kebab-case domain name. Record this as the base
-    path for the Suggested Test File Layout in the output.
+every existing subdomain folder (e.g. `auth/`, `billing/`, `upload/`).
+For the current feature, decide which subfolder it belongs to. If an
+existing folder matches the domain, use it. If not, propose a new
+short, lowercase, kebab-case domain name. Record this as the base
+path for the Suggested Test File Layout in the output.
 
 2. **Read the requirements document** — parse every acceptance criterion,
    the technical spec, and the out-of-scope section.
@@ -279,11 +279,11 @@ and the most important error state.
 A table mapping every acceptance criterion to the test cases that cover it.
 Flag any criterion with no test case.
 
-| AC ID | Criterion (short label)       | Test Cases         | Gap? |
-|-------|-------------------------------|--------------------|------|
-| AC-1  | Authenticated upload succeeds | IT-01, E2E-01      | No   |
-| AC-2  | Unauthenticated upload fails  | UT-01, UT-02       | No   |
-| AC-3  | File size limit enforced      | UT-04, E2E-02      | No   |
+| AC ID | Criterion (short label)       | Test Cases    | Gap? |
+| ----- | ----------------------------- | ------------- | ---- |
+| AC-1  | Authenticated upload succeeds | IT-01, E2E-01 | No   |
+| AC-2  | Unauthenticated upload fails  | UT-01, UT-02  | No   |
+| AC-3  | File size limit enforced      | UT-04, E2E-02 | No   |
 
 ### 6. Explicitly Out of Scope
 
