@@ -67,7 +67,7 @@ invent agent names that are not listed here.
 
 - **Layer:** Database
 - **Responsible for:** Schema migrations, tables, indexes, foreign keys (Drizzle + Supabase)
-- **Output artifact:** `supabase/migrations/<timestamp>_<description>.sql`
+- **Output artifact:** `packages/db/` — schema, migrations (`supabase/migrations/` or equivalent)
 - **Skills:** drizzle.md, supabase.md
 
 ### storage-agent
@@ -80,15 +80,15 @@ invent agent names that are not listed here.
 ### api-agent
 
 - **Layer:** API / Backend
-- **Responsible for:** Hono routes, tRPC procedures, data-fetching
-- **Output artifact:** `src/server/routers/<name>.ts`
-- **Skills:** hono.md, trpc.md, supabase.md
+- **Responsible for:** Hono + tRPC (combined in server app), procedures, data-fetching
+- **Output artifact:** `packages/server/src/routers/<name>.ts` (or `apps/server/src/routers/<name>.ts`)
+- **Skills:** hono.md, trpc.md, better-auth.md, drizzle.md, supabase.md
 
 ### auth-agent
 
 - **Layer:** Auth
-- **Responsible for:** Better Auth guards, protected routes. Auth at application layer, not RLS.
-- **Output artifact:** Guard, middleware, or wrapper
+- **Responsible for:** Better Auth config, guards, protected routes. Auth at application layer, not RLS.
+- **Output artifact:** `packages/auth/` — Better Auth instance, adapters, session config
 - **Skills:** better-auth.md
 
 ### ui-agent

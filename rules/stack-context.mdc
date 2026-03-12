@@ -12,3 +12,5 @@ alwaysApply: true
 **Testing:** PGlite (in-memory Postgres), Better Auth testUtils, Playwright (E2E), Vitest. Integration test pattern: `createUser → saveUser → getAuthHeaders → call route → assert → cleanup`.
 
 **Conventions:** Integration tests are primary; prefer them over unit tests for API/auth boundaries.
+
+**Package layout:** DB and auth are separate packages (`packages/db`, `packages/auth`). Hono and tRPC live together in the server app (`packages/server` or `apps/server`) — no separate API package. The server app imports from `@repo/db` and `@repo/auth`.
