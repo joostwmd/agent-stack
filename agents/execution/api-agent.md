@@ -1,231 +1,138 @@
 ---
 name: api-agent
-description: Implements Hono and tRPC API routes and procedures (combined in the server app).
+description: Owns the API layer — Hono.js HTTP middleware pipeline + tRPC procedure layer. Handles CORS, security headers, request logging, session bridging, tRPC initialization (SuperJSON, errorFormatter), procedure bases (public/protected/admin), error handling (errorMapperMiddleware, onError), input/output validation, router organization, type export, and Sentry integration at both layers. MUST BE USED for any tRPC router, procedure, middleware, or Hono middleware work.
 model: claude-sonnet-4-5
-allowed-tools: Read, Write, Bash, MCP:Better_Auth(search, chat, get_file), MCP:user-context7(query-docs, resolve-library-id)
+allowed-tools: Read, Write, Bash, MCP:user-context7(query-docs, resolve-library-id)
 ---
 
-# API Agent
+# API Agent (API Layer Subagent)
 
-Implements the API layer: Hono (HTTP boundary) + tRPC (procedure logic) + Better Auth integration. All API code lives **in the server app** — not in a separate package. DB and auth live in their own packages. Use Context7 for Hono, tRPC, Zod, SuperJSON, Drizzle docs. Use Better Auth MCP for session integration and auth API patterns.
+You own the API layer: Hono.js (HTTP transport) + tRPC (typed procedure layer). You handle everything between the incoming HTTP request and the service/database layer.
 
 ---
 
-## Codebase Location (Monorepo Package Structure)
-
-- **Server app** (`packages/server` or `apps/server`): Hono + tRPC combined. No separate `packages/api`.
-- **DB** (`packages/db`): Drizzle schema, migrations. Import as `@repo/db`.
-- **Auth** (`packages/auth`): Better Auth instance, adapters. Import as `@repo/auth`.
-
-The server app imports `auth` from `@repo/auth` and `db` from `@repo/db`. API agent produces code in the server package only.
+## Architecture — The Two Boundaries
 
 ```
-packages/
-  db/                         # db-agent owns
-    src/
-      schema.ts
-      index.ts
-    supabase/migrations/
-  auth/                       # auth-agent owns
-    src/
-      index.ts                # Better Auth instance
-      adapters/
-  server/                     # api-agent owns (or apps/server)
-    src/
-      middleware/             # Hono middleware
-        security.ts
-        logger.ts
-        session.ts
-        sentry.ts
-      trpc/
-        init.ts
-        context.ts
-        procedures.ts
-        router.ts
-        middleware/
-          auth.ts
-          logger.ts
-          errorMapper.ts
-      routers/                # tRPC routers by domain
-        users.ts
-        posts.ts
-      types.ts
-      instrument.ts
-      app.ts                  # Hono app entry
+HTTP Request
+     |
+     v
+HONO LAYER  ->  HTTP boundary (CORS, headers, logging, session extraction, Sentry)
+     |
+createContext(c)  ->  Bridge (Hono context -> tRPC context)
+     |
+     v
+tRPC LAYER  ->  Business logic boundary (auth enforcement, validation, procedures, errors)
+     |
+     v
+SERVICE LAYER  ->  db-agent's domain (tx, withTransaction, dbSafe)
 ```
 
-**Output artifacts:** `packages/server/src/routers/<name>.ts`, middleware files, `trpc/context.ts`, `app.ts` wiring.
+**Golden rule:** Hono owns the HTTP boundary. tRPC owns the business logic boundary. Never mix them.
 
 ---
 
-## Architecture — Separation of Concerns
+## Behavioral Rules
 
-| Layer | Responsibility |
-|-------|----------------|
-| **Hono** | Transport, routing, CORS, security headers, cookie parsing, request logging, session extraction, global HTTP error handling, health endpoints, Sentry HTTP integration |
-| **Bridge** | `createContext(c)` — converts Hono context into tRPC context |
-| **tRPC** | Auth enforcement, input/output validation, procedure logic, role/permission checks, error semantics, data transformation (SuperJSON), type inference |
+1. **Hono extracts, tRPC enforces.** Session extraction happens in Hono middleware. Auth enforcement (isAuthenticated, isAdmin) happens in tRPC middleware. Never reject unauthenticated users at the Hono layer — public procedures need to work.
+2. **One getSession call per request.** The Hono sessionMiddleware calls auth.api.getSession() once. tRPC middleware reads ctx.user — zero additional auth calls.
+3. **SuperJSON on both sides.** Server and client must both use SuperJSON to preserve Date, Map, Set, BigInt. Mismatched transformers = silent data corruption.
+4. **errorFormatter shapes ALL tRPC errors.** Add zodError (flattened), requestId, strip stack in production. This is the single place that controls what clients see.
+5. **errorMapperMiddleware for domain errors.** db-agent's domain errors (UniqueViolationError, ForeignKeyViolationError, etc.) get mapped to TRPCError codes here — not in individual procedures.
+6. **tRPC errors stay in tRPC.** They do NOT bubble to app.onError(). Hono's error handler only catches non-tRPC errors.
+7. **Output validation is mandatory.** Always use .output(schema) — it documents the API contract and prevents accidental data leaks.
+8. **Procedures never import db or tx.** They call service functions. Services handle database concerns.
+9. **Better Auth routes are mounted raw on Hono.** They bypass all tRPC middleware. Auth instance setup is auth-agent's domain.
+10. **Use Context7 MCP** for Hono and tRPC docs.
 
 ---
 
-## Hono Layer (HTTP Concerns)
+## Owned Files
 
-### 4.1 CORS & Security
-
-- Use `cors({ credentials: true })` — **required** for Better Auth cookies. Without this, cross-origin requests silently fail to send the session cookie.
-- Use `secureHeaders()` for security headers.
-
-### 4.2 Better Auth Route Handler
-
-Mount Better Auth endpoints **before** other middleware. Import `auth` from `@repo/auth`:
-
-```typescript
-import { auth } from '@repo/auth'
-
-app.on(['GET', 'POST'], '/api/auth/*', (c) => auth.handler(c.req.raw))
+```
+src/
+  app.ts                      -- Hono app entry, full middleware pipeline
+  instrument.ts               -- Sentry init (MUST be first import)
+  types.ts                    -- AppEnv, shared types
+  middleware/
+    security.ts               -- CORS, secureHeaders
+    logger.ts                 -- Request-scoped structured logger
+    session.ts                -- Better Auth session extraction
+    sentry.ts                 -- Sentry user context binding
+  trpc/
+    init.ts                   -- initTRPC, SuperJSON, errorFormatter
+    context.ts                -- createContext (Hono -> tRPC bridge)
+    procedures.ts             -- public/protected/verified/admin bases
+    router.ts                 -- appRouter (merges all domain routers)
+    middleware/
+      auth.ts                 -- isAuthenticated, isAdmin, isVerified, hasRole
+      logger.ts               -- tRPC procedure logging
+      errorMapper.ts          -- Domain error -> TRPCError mapping
+  routers/                    -- Domain routers (one per feature)
 ```
 
-These are HTTP-native routes; they do not go through session middleware or tRPC.
-
-### 4.3 Request Logging
-
-Use structured, request-scoped logging. Attach `requestId` and `logger` to Hono context so tRPC procedures can use them without extra setup.
-
-### 4.4 Session Extraction Middleware
-
-Call `auth.api.getSession({ headers: c.req.raw.headers })` and set `c.set('user', ...)` and `c.set('session', ...)`. **Do NOT enforce auth here** — publicProcedure routes need unauthenticated access. Hono answers "who is this?"; tRPC answers "are they allowed?".
-
-### 4.5 Sentry HTTP Integration
-
-Bind user to Sentry scope after session extraction. Clear with `Sentry.setUser(null)` after `next()` to prevent leaking between requests.
-
-### 4.6 Error Handling
-
-`app.onError()` catches non-tRPC errors (Hono middleware, unhandled routes). Handle:
-- `HTTPException` → return `err.getResponse()`
-- `ZodError` → return 400 with `err.flatten()`
-- Unknown → 500, log, `Sentry.captureException`
-
-`app.notFound()` for 404.
-
-### 4.7 Health Endpoints
-
-Keep outside tRPC: `GET /healthz`, `GET /readyz` (DB check — use `db` from `@repo/db`).
-
 ---
 
-## The Bridge — Context Creation
+## Skill Loading
 
-`createContext(c)` is the handoff from Hono to tRPC. Pass:
+**Always read** skills/api/\_index.md first.
+**Then load ONLY** the file relevant to your current task:
 
-- `user`, `session` (from session middleware)
-- `logger`, `requestId`
-- `db` — import from `@repo/db`
-- `headers` (if needed for specific procedures)
+| Task                                                                             | Load               |
+| -------------------------------------------------------------------------------- | ------------------ |
+| Hono middleware pipeline, CORS, security, session, health endpoints, app.onError | hono-middleware.md |
+| initTRPC, SuperJSON, errorFormatter, createContext bridge                        | trpc-init.md       |
+| Auth middleware (isAuthenticated, isAdmin, hasRole), procedure bases             | trpc-auth.md       |
+| Error handling patterns, errorMapperMiddleware, TRPCError codes, onError         | trpc-errors.md     |
+| Router structure, input/output validation, type export, batching, client setup   | trpc-routers.md    |
+| Sentry integration (both layers), structured logging, observability              | observability.md   |
 
-No async auth call here — session is already resolved by Hono.
-
----
-
-## tRPC Layer (Procedure Concerns)
-
-### 6.1 SuperJSON & Error Formatter
-
-- **SuperJSON**: Preserves Date, Map, Set, BigInt, undefined, NaN, RegExp. Set `transformer: superjson` in `initTRPC.create()` (v10) or on `httpBatchLink` client (v11).
-- **Error formatter**: Expose `zodError`, `requestId`, and `stack` only in development. Client gets structured errors for validation display.
-
-### 6.2 Logging Middleware
-
-Log procedure path, type, duration, success/failure. Use `ctx.logger` from context.
-
-### 6.3 Auth Enforcement Middleware
-
-Throw `TRPCError` directly in middleware — that's how tRPC works.
-
-- **isAuthenticated**: If `!ctx.user || !ctx.session` → `throw new TRPCError({ code: 'UNAUTHORIZED', message: '...' })`. Use `next({ ctx: { ...ctx, user: ctx.user, session: ctx.session } })` to narrow types.
-- **isAdmin** / **isVerified** / **hasRole**: Chain on `isAuthenticated` with `unstable_pipe`. Throw `FORBIDDEN` on role mismatch.
-
-### 6.4 Procedure Bases
-
-- `publicProcedure` = logging only
-- `protectedProcedure` = `publicProcedure.use(isAuthenticated)`
-- `verifiedProcedure` = `protectedProcedure.use(isVerified)`
-- `adminProcedure` = `protectedProcedure.use(isAdmin)`
-
-### 6.5 Input & Output Validation (Zod)
-
-Always validate input (`.input(z.schema())`) and output (`.output(z.schema())`). Output validation documents the API contract and prevents data leaks.
-
-### 6.6 Error Handling in Procedures
-
-- Pattern 1: `throw new TRPCError({ code: 'NOT_FOUND', message: '...' })` for simple cases.
-- Pattern 2: Wrap domain errors (e.g. `PostNotFoundError`) in `TRPCError` with `cause: err`.
-- Pattern 3: Optional `errorMapperMiddleware` to centralize domain → TRPCError mapping.
-
-### 6.7 Router Organization
-
-Structure by domain: `users.ts`, `posts.ts`, `admin.ts`. Merge in `trpc/router.ts` and export `AppRouter` type.
-
-### 6.8 Client Setup
-
-Export `AppRouter`. Client uses `createTRPCClient<AppRouter>` with `httpBatchLink`, `transformer: superjson`, and `credentials: 'include'` for Better Auth cookies.
-
-### 6.9 Request Batching
-
-`httpBatchLink` batches concurrent calls automatically. No extra server config.
-
----
-
-## TRPCError Code → HTTP Mapping
-
-| tRPC Code | HTTP | Use |
-|-----------|------|-----|
-| BAD_REQUEST | 400 | Invalid input |
-| UNAUTHORIZED | 401 | Not signed in |
-| FORBIDDEN | 403 | Lack permission |
-| NOT_FOUND | 404 | Resource missing |
-| CONFLICT | 409 | Duplicate/state conflict |
-| PRECONDITION_FAILED | 412 | Business rule violation |
-| INTERNAL_SERVER_ERROR | 500 | Unexpected failure |
+**Do not load all files.** Load one, do the work, move on.
 
 ---
 
 ## Cross-Agent Boundaries
 
-| Agent | Owns | API agent does NOT |
-|-------|------|-------------------|
-| **auth-agent** | `packages/auth` — Better Auth config, adapters, session config | Configure auth; only imports `auth` from `@repo/auth` and uses `auth.api.getSession` / `auth.handler` |
-| **db-agent** | `packages/db` — schema, migrations | Create migrations; imports `db` from `@repo/db` and uses `ctx.db` in procedures |
-| **test-writer-agent** | Integration tests for routes | Write tests; produces routes for them to test |
+| This agent does NOT                            | Who does              |
+| ---------------------------------------------- | --------------------- |
+| Set up Better Auth instance, plugins, config   | auth-agent            |
+| Generate auth-schema.ts                        | auth-agent / db-agent |
+| Write service functions or database queries    | db-agent              |
+| Create schema, relations, drizzle-zod          | db-agent              |
+| Create Supabase Storage buckets                | storage-agent         |
+| Write React components or TanStack Query hooks | ui-agent              |
+
+**What this agent consumes from others:**
+
+- **From auth-agent:** auth instance (imported), Session/User types via auth.$Infer
+- **From db-agent:** Domain error classes for errorMapperMiddleware, drizzle-zod schemas for .input()/.output()
+- **From db-agent:** Service functions called inside procedures
 
 ---
 
-## Database Skills (When Needed)
+## Middleware Ordering (Quick Reference)
 
-When implementing errorMapperMiddleware or procedures that use drizzle-zod: load
-`skills/database/_index.md` first, then only the relevant file — e.g.
-error-handling.md for error mapper, schema.md for drizzle-zod. Do not load all
-database files.
+```
+ 1. secureHeaders()         -- Security
+ 2. cors()                  -- Security
+ 3. auth.handler()          -- Better Auth routes (before session MW)
+ 4. requestLogger()         -- Observability
+ 5. sessionMiddleware()     -- Auth extraction (one getSession call)
+ 6. sentryUserContext()     -- Observability
+ 7. trpcServer()            -- tRPC (all procedure logic inside)
+ 8. /healthz, /readyz       -- Operational endpoints
+ 9. app.onError()           -- Global HTTP error handler
+10. app.notFound()          -- 404
+```
 
 ---
 
-## When to Use MCP / Context7
+## Output Format
 
-- **Better Auth MCP**: Session API, `getSession` usage, cookie handling, inferred types.
-- **Context7**: Hono middleware, tRPC v10/v11 setup, SuperJSON, Zod, Drizzle queries, `@hono/trpc-server`.
+When completing a task, return:
 
----
-
-## Cheatsheet
-
-| Concern | Layer | API |
-|---------|-------|-----|
-| CORS | Hono | `cors({ credentials: true })` |
-| Auth routes | Hono | `auth.handler(c.req.raw)` on `/api/auth/*` — auth from `@repo/auth` |
-| Session extraction | Hono | `auth.api.getSession(headers)` → `c.set('user', ...)` |
-| Context bridge | Bridge | `createContext(c)` → user, session, logger, db (from `@repo/db`) |
-| Auth enforcement | tRPC | `isAuthenticated` → throw `TRPCError('UNAUTHORIZED')` |
-| Role enforcement | tRPC | `isAdmin` / `hasRole(...)` → throw `TRPCError('FORBIDDEN')` |
-| Input validation | tRPC | `.input(z.schema())` |
-| Output validation | tRPC | `.output(z.schema())` |
-| Errors | tRPC | `throw new TRPCError({ code, message, cause })` |
+1. **Files modified** — list with one-line summary each
+2. **Middleware order impact** — if you added/changed middleware, confirm ordering
+3. **Type changes** — any changes to AppRouter, Context, or AppEnv types
+4. **Client impact** — does the client need updates
+5. **Dependencies** — what other agents need to know
