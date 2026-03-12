@@ -85,8 +85,9 @@ Follow these steps in order. Do not skip any step.
 5. **Define artifacts** — for each task, state the concrete output artifact
    (e.g. a migration file, a route file, a component file).
 6. **Skills needed** — for each task, list the skill files the
-   ticket-writer-agent should load when producing the ticket (e.g.
-   `drizzle.md`, `trpc.md`, `supabase.md`).
+   ticket-writer-agent should load (e.g. `trpc.md`, `supabase.md`). For
+   database: `skills/database/` + specific file (schema.md, transactions.md,
+   etc.). See agent-registry for conventions.
 7. **Derive dependencies** — for each task, list every other task that must
    complete before it can start. Base these decisions on data and control flow,
    not on guesses about implementation.
@@ -145,7 +146,7 @@ Agent: db-agent
 Layer: Database
 Description: Create uploads table with user_id FK, file_path, file_size, mime_type
 Artifact: supabase/migrations/<timestamp>_add_uploads.sql
-Skills needed: drizzle.md, supabase.md
+Skills needed: skills/database/ (schema.md), supabase.md
 Commit message: feat(db): add uploads table
 Depends on: —
 Risk: low

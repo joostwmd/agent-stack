@@ -33,8 +33,15 @@ agent-stack/
 │       └── reviewer-agent.md
 ├── skills/
 │   ├── agent-registry.md
+│   ├── database/                   # Hierarchical: _index.md + specific files
+│   │   ├── _index.md               # Root: summary, routing table
+│   │   ├── connection.md
+│   │   ├── schema.md
+│   │   ├── transactions.md
+│   │   ├── error-handling.md
+│   │   ├── queries.md
+│   │   └── migrations.md
 │   ├── supabase.md
-│   ├── drizzle.md
 │   ├── better-auth.md
 │   ├── hono.md
 │   ├── trpc.md

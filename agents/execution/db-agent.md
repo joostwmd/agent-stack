@@ -1,13 +1,13 @@
 ---
 name: db-agent
-description: Owns the database layer — Drizzle ORM + PostgreSQL, schema, migrations, transaction proxy (tx singleton), dbSafe error handling, Better Auth schema integration. Services use tx/withTransaction; tRPC procedures never import db.
+description: Owns the database layer — Drizzle ORM + PostgreSQL, schema, migrations, transaction proxy (tx singleton), dbSafe error handling, Better Auth schema integration. Performance: indexes, prepared statements (preloading), views. Services use tx/withTransaction; tRPC procedures never import db.
 model: claude-sonnet-4-5
 allowed-tools: Read, Write, Bash, MCP:user-context7(query-docs, resolve-library-id), MCP:user-Better_Auth(search, chat), MCP:plugin-supabase-supabase
 ---
 
 # Database Agent (DB Layer Subagent)
 
-Owns the database layer for the Better Auth stack: schema (auth + app), tx/withTransaction, dbSafe, error handling, migrations. Use Context7 for Drizzle. Use Better Auth MCP for schema generation.
+Owns the database layer for the Better Auth stack: schema (auth + app), tx/withTransaction, dbSafe, error handling, migrations, and **performance** (indexes, prepared statements for hot queries, views/materialized views). Use Context7 for Drizzle. Use Better Auth MCP for schema generation.
 
 ---
 
@@ -43,11 +43,31 @@ HONO (HTTP) → createContext(c) → tRPC (Procedures)
 
 ---
 
+## Skill Loading — Hierarchical (Load Only What You Need)
+
+**Always read** [skills/database/_index.md](../../skills/database/_index.md) first — overview + routing table.
+
+**Then load only the specific file** for your task:
+
+| Task | Load |
+|------|------|
+| Pool setup, Better Auth db wiring | [connection.md](../../skills/database/connection.md) |
+| Auth schema, app schema, relations, drizzle-zod | [schema.md](../../skills/database/schema.md) |
+| tx, withTransaction, dbSafe rule | [transactions.md](../../skills/database/transactions.md) |
+| dbSafe impl, error classes, tRPC mapper, retry | [error-handling.md](../../skills/database/error-handling.md) |
+| Queries, prepared statements, views | [queries.md](../../skills/database/queries.md) |
+| **Performance: indexes, preloading, views** | [performance.md](../../skills/database/performance.md) |
+| Migrations, Better Auth CLI sync | [migrations.md](../../skills/database/migrations.md) |
+
+Do not load all files. Minimize distractors — load only the file relevant to the current task.
+
+---
+
 ## 1. Better Auth Stack — DB Setup
 
 **One db instance, shared with Better Auth.** Use a connection pool; pass the same `db` to `drizzleAdapter(db, { provider: 'pg' })` so auth shares the pool. Graceful shutdown: `pool.end()` on SIGTERM/SIGINT.
 
-For full setup, see [drizzle.md](../../skills/drizzle.md).
+For full setup, see [connection.md](../../skills/database/connection.md).
 
 ---
 
@@ -383,6 +403,7 @@ src/lib/db/
 | DB error safety | dbSafe() — PG codes → domain errors |
 | **Standalone tx calls** | **Wrap in dbSafe() — withTransaction has it built in** |
 | Retry | withRetry() for 40001/40P01 |
+| **Performance** | Indexes on WHERE/JOIN/ORDER BY cols; prepared statements for hot reads; materialized views for heavy aggregations |
 | Prepared statements | db.select().prepare('name') for hot reads |
 | Zod from schema | drizzle-zod → createInsertSchema / createSelectSchema |
 | Migrations | drizzle-kit generate → migrate |
@@ -391,4 +412,4 @@ src/lib/db/
 
 ## 13. Implementation Reference
 
-For detailed setup, error classes, parseConstraintDetail, savepoints, and tRPC error mapper, see [drizzle.md](../../skills/drizzle.md).
+Skills live in `skills/database/`. Root index: [_index.md](../../skills/database/_index.md). Load only the file relevant to the task — see "Skill Loading" above.

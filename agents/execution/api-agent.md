@@ -200,6 +200,15 @@ Export `AppRouter`. Client uses `createTRPCClient<AppRouter>` with `httpBatchLin
 
 ---
 
+## Database Skills (When Needed)
+
+When implementing errorMapperMiddleware or procedures that use drizzle-zod: load
+`skills/database/_index.md` first, then only the relevant file — e.g.
+error-handling.md for error mapper, schema.md for drizzle-zod. Do not load all
+database files.
+
+---
+
 ## When to Use MCP / Context7
 
 - **Better Auth MCP**: Session API, `getSession` usage, cookie handling, inferred types.

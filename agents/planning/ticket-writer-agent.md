@@ -32,8 +32,10 @@ Load the following before starting:
 - `.cursor/tickets/<feature>/02-test-spec.md` — test context
 - `.cursor/skills/agent-registry.md` — agent definitions
 
-For each task, load the skills listed in "Skills needed" (e.g.
-`.cursor/skills/drizzle.md`, `.cursor/skills/trpc.md`).
+For each task, load the skills listed in "Skills needed". For database tasks:
+load `skills/database/_index.md` first, then only the specific file needed
+(connection.md, schema.md, transactions.md, error-handling.md, queries.md,
+migrations.md). For other skills: load the file directly (e.g. trpc.md).
 
 ---
 
@@ -46,7 +48,9 @@ Follow these steps for each task in the plan. Do not skip any step.
    a. Read the task definition (Agent, Description, Skills needed, Depends on).
    b. Load the relevant discovery artifacts (00-requirements, 01-ui-spec,
       02-test-spec) and extract context applicable to this task.
-   c. Load each skill file listed in "Skills needed" from `.cursor/skills/`.
+   c. Load each skill listed in "Skills needed". Database skills: load
+      `skills/database/_index.md` then the specific file. Others: load from
+      skills/ directly.
    d. Call Context7 for up to 3 libraries relevant to this task — use
       `resolve-library-id` then `query-docs` for implementation patterns.
    e. Produce a detailed ticket with: task description, acceptance criteria

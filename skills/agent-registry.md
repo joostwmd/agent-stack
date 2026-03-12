@@ -68,7 +68,7 @@ invent agent names that are not listed here.
 - **Layer:** Database
 - **Responsible for:** Schema migrations, tables, indexes, foreign keys (Drizzle + Supabase)
 - **Output artifact:** `packages/db/` — schema, migrations (`supabase/migrations/` or equivalent)
-- **Skills:** drizzle.md, supabase.md
+- **Skills:** skills/database/_index.md (root) + load only the specific file needed (connection.md, schema.md, transactions.md, error-handling.md, queries.md, performance.md, migrations.md)
 
 ### storage-agent
 
@@ -82,7 +82,7 @@ invent agent names that are not listed here.
 - **Layer:** API / Backend
 - **Responsible for:** Hono + tRPC (combined in server app), procedures, data-fetching
 - **Output artifact:** `packages/server/src/routers/<name>.ts` (or `apps/server/src/routers/<name>.ts`)
-- **Skills:** hono.md, trpc.md, better-auth.md, drizzle.md, supabase.md
+- **Skills:** hono.md, trpc.md, better-auth.md, skills/database/ (load _index.md + specific file when needed), supabase.md
 
 ### auth-agent
 
