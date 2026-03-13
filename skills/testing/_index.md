@@ -1,49 +1,59 @@
----
-name: testing
-description: Vitest unit and integration tests — component, API, DB. Read this first for routing. Load only the specific file needed.
----
+# Testing Skills — Index
 
-# Testing — Root Index
+## Stack
 
-Bird's-eye view for test-writer-agent. **Read this file first.** Then load only the specific file relevant to the test type — do not load all files.
+| Layer | Tools |
+|-------|-------|
+| Component / integration | Vitest + React Testing Library + msw-trpc |
+| tRPC procedures | Vitest + `createCallerFactory` + Better Auth testUtils |
+| DB queries / transactions | Vitest + PGlite + `dbTest` fixture |
+| DB infrastructure | Vitest unit (no DB needed for dbSafe / withRetry) |
+| Mutation quality audit | StrykerJS + vitest-runner (qa-agent scope) |
 
----
+## Monorepo Layout
 
-## Summary
+```
+packages/
+├── client/   — React + Vite + TanStack Router + TanStack Query
+└── server/   — Hono + tRPC + Drizzle + Better Auth
 
-- **TDD order:** test-writer-agent produces failing tests before implementation. Execution agents then implement to pass.
-- **Stack:** Vitest, PGlite (in-memory DB), Better Auth testUtils, React Testing Library. E2E handled by e2e-test-writer-agent.
-- **Location:** Tests live under `tests/` (paths from project-context or ticket). Never co-locate with source.
-- **Integration first:** Prefer integration tests over unit tests for API/auth boundaries.
+tests/
+├── _fixtures/        — shared Vitest fixtures (dbTest, authDbTest)
+├── _utils/           — renderWithProviders, createTestCaller
+├── _mocks/
+│   └── handlers/     — msw-trpc handlers per domain
+├── _db/              — PGlite setup, migrate helper
+├── web/              — client package tests, by feature
+│   └── <feature>/
+└── api/              — server package tests, by feature
+    ├── <feature>/
+    └── db/
+        ├── queries/
+        └── infra/
+```
 
----
+## Shared Rules (apply to all skill files)
 
-## Routing Table — Load Only What You Need
+1. Import from `tests/_utils/` and `tests/_fixtures/` using path aliases — never relative `../../`
+2. Never `vi.mock` TanStack Query, tRPC internals, or Drizzle
+3. Never use `getByTestId` — query by role, label, or text only
+4. Every async assertion uses `findBy*` or `waitFor`
+5. One PGlite instance per test file (`beforeAll`), never per test
+6. `server.resetHandlers()` runs in `afterEach` — already wired in global setup
+7. Tests assert on what the user sees or what the system returns — never on internal state
 
-| Task | Load file |
-|------|-----------|
-| React component tests, RTL, render patterns | component.md |
-| MSW + msw-trpc handler setup | msw.md |
-| Form tests (RHF + Zod + Shadcn) | forms.md |
-| Custom hook tests | hooks.md |
-| tRPC procedure tests, auth-gated routes | trpc.md |
-| DB query tests (PGlite, fixtures) | db-queries.md |
-| DB infrastructure (dbSafe, withRetry, tx) | db-infra.md |
-| Shadcn / Radix gotchas | shadcn.md |
+## Routing Table
 
----
+| Task | Load |
+|------|------|
+| React component / integration tests | `component.md` |
+| tRPC client setup (prod + test, MSW, RouterAppContext) | `trpc-client.md` |
+| MSW + msw-trpc handler patterns | `msw.md` |
+| Form tests (RHF + Zod + Shadcn) | `forms.md` |
+| Custom hook tests | `hooks.md` |
+| tRPC procedure tests (server-side caller) | `trpc.md` |
+| DB query tests (complex joins, transactions) | `db-queries.md` |
+| DB infra tests (dbSafe, withRetry) | `db-infra.md` |
+| Shadcn / Radix gotchas | `shadcn.md` |
 
-## Shared Rules (Apply Everywhere)
-
-1. **Stack-context** and **project-context** define Vitest config, paths, fixtures, and auth testUtils.
-2. **Never mock** TanStack Query at module level — use MSW handlers.
-3. **Query priority:** getByRole → getByLabelText → getByText. Avoid getByTestId.
-4. **Async:** use findBy* or waitFor — never bare getBy after interaction.
-5. **Do not test** library internals (Shadcn, RTL, Drizzle). Test behaviour.
-
----
-
-## Out of Scope
-
-- E2E / Playwright tests → e2e-test-writer-agent
-- Implementation code → flag missing implementations, do not write them
+Load one file. Do the work. Move on.
