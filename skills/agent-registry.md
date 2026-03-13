@@ -104,7 +104,7 @@ invent agent names that are not listed here.
 - **Layer:** Tests
 - **Responsible for:** Unit and integration tests from test spec. Runs before implementation.
 - **Output artifact:** `tests/<domain>/*.test.ts`
-- **Skills:** (from test spec)
+- **Skills:** skills/testing/_index.md (root) + load only the specific file needed (component.md, msw.md, forms.md, hooks.md, trpc.md, db-queries.md, db-infra.md, shadcn.md). Ticket may specify which skill; otherwise use routing table.
 
 ### e2e-test-writer-agent
 
