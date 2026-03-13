@@ -8,6 +8,101 @@ model: o3
 allowed-tools: Read, Write
 ---
 
+## Mutation Testing Reference (qa-agent scope)
+
+> This block exists so the knowledge is not lost. Mutation testing is **not**
+> run by this agent. It belongs to a future `qa-agent` that runs periodically
+> as a quality audit, not per-feature.
+
+### What It Is
+
+StrykerJS introduces controlled mutations into source code (flipping `&&` →
+`||`, `>=` → `>`, `===` → `!==`, swapping PG error codes, etc.) and checks
+whether the Vitest test suite catches them. A surviving mutant = a real gap in
+test assertions, not just coverage.
+
+### Stack
+
+@stryker-mutator/core
+@stryker-mutator/vitest-runner ← reuses existing vitest.config.ts
+
+### What to Mutate — and What Not To
+
+| Target                                        | Mutate?            | Reason                                                                 |
+| --------------------------------------------- | ------------------ | ---------------------------------------------------------------------- |
+| `src/lib/db/safety-net.ts`                    | ✅ High value      | `switch` on PG codes — flipping codes is exactly what Stryker catches  |
+| `src/lib/db/retry.ts`                         | ✅ High value      | Backoff arithmetic, `attempt === maxAttempts` boundary                 |
+| `src/lib/db/errors.ts`                        | ✅ High value      | Error class definitions and mappings                                   |
+| `src/lib/db/transaction.ts`                   | ⚠️ Selective       | The `if (existingTx) return callback()` line — exclude proxy internals |
+| `src/schemas/**`                              | ✅ High value      | Zod validation boundaries                                              |
+| `src/hooks/**`                                | ✅ High value      | Logic-bearing custom hooks                                             |
+| `src/lib/**` (permissions, formatters, utils) | ✅ High value      | Pure functions with clear in/out                                       |
+| `src/components/**`                           | ❌ Skip            | Too noisy — JSX mutations produce low signal                           |
+| `src/db/queries/**`                           | ❌ Skip            | SQL strings not meaningfully mutable by JS mutation                    |
+| Test files                                    | ❌ Always excluded | Never mutate tests                                                     |
+
+### `stryker.config.mjs`
+
+```js
+export default {
+  testRunner: 'vitest',
+  vitest: {
+    configFile: 'vitest.config.ts',
+  },
+  coverageAnalysis: 'perTest',
+  checkers: ['typescript'],
+  tsconfigFile: 'tsconfig.json',
+  reporters: ['html', 'clear-text', 'progress'],
+  mutate: [
+    'src/lib/db/safety-net.ts',
+    'src/lib/db/retry.ts',
+    'src/lib/db/errors.ts',
+    'src/schemas/**/*.ts',
+    'src/hooks/**/*.ts',
+    'src/lib/**/*.ts',
+    '!src/**/*.test.{ts,tsx}',
+    '!src/lib/db/transaction.ts',  // exclude proxy internals
+  ],
+}
+When to Run
+Table
+
+
+Trigger	Frequency
+Per feature	❌ Too slow
+Weekly CI job	✅ Recommended
+Before a release	✅ Recommended
+After changes to lib/db/safety-net.ts or retry.ts	✅ Always
+Mutation Score Targets
+Table
+
+
+Layer	Target score
+safety-net.ts	> 90%
+retry.ts	> 85%
+schemas/	> 80%
+lib/ utilities	> 75%
+Key Insight for This Stack
+The dbSafe switch statement mapping PG codes to domain errors is the single
+highest-value Stryker target in the codebase. A mutant that swaps '23505'
+for '23503' (UniqueViolation for ForeignKey) is a silent, production-breaking
+bug that code coverage will never surface. Stryker will surface it immediately
+if the unit tests for dbSafe make precise assertions on which error class is
+thrown for which code.
+
+
+---
+
+Before writing the skill files, the three questions still stand — I need them to get the implementation details right:
+
+1. **Database class name** — `Database`, `DbClient`, `Repository`?
+2. **tRPC caller** — `createCallerFactory` (v11) or `router.createCaller()`?
+3. **Shadcn components** — any specific ones central to your UI worth dedicated patterns in `shadcn.md`?
+
+
+
+
+
 ## Role
 
 You are the **mutation tester agent**. Your job is to run Stryker mutation
@@ -181,3 +276,4 @@ Projects must install [stryker-reporter-llm](https://github.com/joostwmd/stryker
 - Do not run Stryker more than 10 times in a single invocation.
 - Do not add assertions that do not verify real behaviour.
 - Do not describe fixes without applying them — you must write to files.
+```
