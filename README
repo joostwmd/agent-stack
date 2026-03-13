@@ -23,7 +23,7 @@ agent-stack/
 │   │   ├── storage-agent.md
 │   │   ├── api-agent.md
 │   │   ├── auth-agent.md
-│   │   ├── ui-agent.md
+│   │   ├── frontend-agent.md
 │   │   ├── test-writer-agent.md      # Unit + integration tests
 │   │   └── e2e-test-writer-agent.md
 │   ├── testing/                      # Phase 3 — run tests, mutation testing
@@ -72,7 +72,7 @@ agent-stack/
 |-------|-----------|--------|--------|
 | **0. Discovery** | `agents/discovery/` | requirements-agent, ux-designer-agent*, test-strategist-agent | 00-requirements.md, 01-ui-spec.md, 02-test-spec.md |
 | **1. Planning** | `agents/planning/` | orchestrator-agent, ticket-writer-agent | 03-plan.md, tickets/T*.md |
-| **2. Execution** | `agents/execution/` | test-writer-agent, e2e-test-writer-agent, db-agent, storage-agent, api-agent, auth-agent, ui-agent | Code files |
+| **2. Execution** | `agents/execution/` | test-writer-agent, e2e-test-writer-agent, db-agent, storage-agent, api-agent, auth-agent, frontend-agent | Code files |
 | **3. Testing** | `agents/testing/` | test-runner-agent, mutation-tester-agent | Test results, fixes |
 | **4. Validation** | `agents/validation/` | reviewer-agent | Review appended to plan, commit snippet |
 
