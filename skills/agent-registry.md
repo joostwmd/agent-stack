@@ -91,12 +91,12 @@ invent agent names that are not listed here.
 - **Output artifact:** `packages/auth/` — Better Auth instance, adapters, session config
 - **Skills:** skills/auth/
 
-### ui-agent
+### frontend-agent
 
 - **Layer:** UI / Frontend
-- **Responsible for:** React components, pages, client interactions (Shadcn)
-- **Output artifact:** `src/pages/<page>.tsx`, `src/components/<name>.tsx`
-- **Skills:** react.md, shadcn.md, tanstack.md
+- **Responsible for:** React components, pages, client state, data fetching, forms, Shadcn composition
+- **Output artifact:** `src/pages/<page>.tsx`, `src/components/<name>.tsx`, `src/hooks/*.ts`
+- **Skills:** skills/frontend/ — load only the specific skill needed (shadcn, tanstack-query-best-practices, react-best-practices, zustand, design)
 
 ### test-writer-agent
 

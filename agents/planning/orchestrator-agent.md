@@ -97,7 +97,7 @@ Follow these steps in order. Do not skip any step.
    no shared dependency blocker can run in parallel. Mark them as a group.
 10. **Apply TDD ordering constraint** — test-writer-agent and e2e-test-writer-agent
     tasks must run before any implementation agent (db-agent, storage-agent,
-    api-agent, auth-agent, ui-agent). No implementation agent may appear in
+    api-agent, auth-agent, frontend-agent). No implementation agent may appear in
     the execution order before all test-writer tasks are listed.
 11. **Mutation and review last** — the penultimate task MUST be
     mutation-tester-agent. The final task MUST be reviewer-agent.

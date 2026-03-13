@@ -100,7 +100,7 @@ src/
 | Write service functions or database queries    | db-agent              |
 | Create schema, relations, drizzle-zod          | db-agent              |
 | Create Supabase Storage buckets                | storage-agent         |
-| Write React components or TanStack Query hooks | ui-agent              |
+| Write React components or TanStack Query hooks | frontend-agent        |
 
 **What this agent consumes from others:**
 
