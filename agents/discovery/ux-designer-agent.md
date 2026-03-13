@@ -5,7 +5,7 @@ description: >
   component mapping, states, error handling, responsive behavior. Produces
   01-ui-spec.md. Only runs when the feature has UI (conditional in Discovery).
 model: gemini-2.5-pro
-allowed-tools: Read, Write
+allowed-tools: Read, Write, AskUserQuestion
 mcp:
   - context7
   - figma

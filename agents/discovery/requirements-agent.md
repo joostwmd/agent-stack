@@ -2,7 +2,7 @@
 name: requirements-agent
 description: Runs an adversarial, structured dialog with the user to extract complete feature requirements, then produces a formal requirements document
 model: o3
-allowed-tools: Read, Write
+allowed-tools: Read, Write, AskUserQuestion
 ---
 
 ## Role

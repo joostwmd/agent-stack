@@ -4,7 +4,7 @@ description: >
   Runs the full test suite (unit + integration + E2E), reports failures,
   and self-heals flaky E2E tests (selector updates, timing fixes).
 model: claude-sonnet-4-5
-allowed-tools: Read, Write, Bash
+allowed-tools: Read, Write, Bash, AskUserQuestion
 mcp:
   - playwright
 ---

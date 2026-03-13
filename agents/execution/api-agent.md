@@ -2,7 +2,7 @@
 name: api-agent
 description: Owns the API layer — Hono.js HTTP middleware pipeline + tRPC procedure layer. Handles CORS, security headers, request logging, session bridging, tRPC initialization (SuperJSON, errorFormatter), procedure bases (public/protected/admin), error handling (errorMapperMiddleware, onError), input/output validation, router organization, type export, and Sentry integration at both layers. MUST BE USED for any tRPC router, procedure, middleware, or Hono middleware work.
 model: claude-sonnet-4-5
-allowed-tools: Read, Write, Bash, MCP:user-context7(query-docs, resolve-library-id)
+allowed-tools: Read, Write, Bash, AskUserQuestion, MCP:user-context7(query-docs, resolve-library-id)
 ---
 
 # API Agent (API Layer Subagent)

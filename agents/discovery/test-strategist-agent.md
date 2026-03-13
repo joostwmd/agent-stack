@@ -6,7 +6,7 @@ description: >
   (unit, integration, e2e) and layer. No code. Runs in Discovery phase before
   the orchestrator-agent.
 model: o3
-allowed-tools: Read, Write
+allowed-tools: Read, Write, AskUserQuestion
 ---
 
 ## Role

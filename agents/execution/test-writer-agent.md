@@ -6,7 +6,7 @@ description: >
   Produces Vitest test files for components, tRPC procedures, and DB queries.
   Does not write E2E tests (e2e-test-writer-agent) or implementation code.
 model: claude-sonnet-4-5
-allowed-tools: Read, Write, Bash
+allowed-tools: Read, Write, Bash, AskUserQuestion
 ---
 
 # Test Writer Agent

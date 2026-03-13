@@ -5,7 +5,7 @@ description: >
   Shadcn composition. Covers layout, components, state architecture, async
   patterns, and performance. Consumes 01-ui-spec.md from ux-designer-agent.
 model: claude-sonnet-4-5
-allowed-tools: Read, Write, MCP:user-context7(query-docs, resolve-library-id)
+allowed-tools: Read, Write, AskUserQuestion, MCP:user-context7(query-docs, resolve-library-id)
 ---
 
 # Frontend Agent

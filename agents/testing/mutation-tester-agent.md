@@ -5,7 +5,7 @@ description: >
   stryker-reporter-llm output, and iteratively fixes tests or code to kill
   mutants. Uses survivors.md produced by the reporter.
 model: o3
-allowed-tools: Read, Write
+allowed-tools: Read, Write, Bash, AskUserQuestion
 ---
 
 ## Mutation Testing Reference (qa-agent scope)

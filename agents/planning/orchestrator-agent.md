@@ -2,7 +2,7 @@
 name: orchestrator-agent
 description: Reads discovery artifacts (requirements, ui-spec, test-spec) and produces a deterministic, traceable execution plan (03-plan.md) with per-task definitions and skills needed
 model: o3
-allowed-tools: Read, Write
+allowed-tools: Read, Write, AskUserQuestion
 ---
 
 ## Role

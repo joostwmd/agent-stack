@@ -5,7 +5,7 @@ description: >
   migrations, documentation. Evaluates correctness, security, performance,
   and maintainability. Outputs a structured report for commit/PR context.
 model: o3
-allowed-tools: Read, Write
+allowed-tools: Read, Write, AskUserQuestion
 ---
 
 ## Role

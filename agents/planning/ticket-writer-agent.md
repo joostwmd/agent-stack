@@ -5,7 +5,7 @@ description: >
   in tickets/ subdirectory. Loads skills of the assigned execution agent and
   fetches Context7 docs for implementation reference.
 model: o3
-allowed-tools: Read, Write
+allowed-tools: Read, Write, AskUserQuestion
 mcp:
   - context7
 ---

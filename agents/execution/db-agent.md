@@ -2,7 +2,7 @@
 name: db-agent
 description: Owns the database layer — Drizzle ORM + PostgreSQL, schema, migrations, transaction proxy (tx singleton), dbSafe error handling, Better Auth schema integration. Performance: indexes, prepared statements, views. Services use tx/withTransaction; tRPC procedures never import db. MUST BE USED for any database schema, query, migration, or transaction work.
 model: claude-sonnet-4-5
-allowed-tools: Read, Write, Bash, MCP:user-context7(query-docs, resolve-library-id), MCP:user-Better_Auth(search, chat), MCP:plugin-supabase-supabase
+allowed-tools: Read, Write, Bash, AskUserQuestion, MCP:user-context7(query-docs, resolve-library-id), MCP:user-Better_Auth(search, chat), MCP:plugin-supabase-supabase
 ---
 
 # Database Agent
