@@ -81,9 +81,9 @@ agent-stack/
 **Artifact flow:**
 
 ```
-00-requirements.md  ← requirements-agent (discovery)
-01-ui-spec.md      ← ux-designer-agent (discovery, conditional)
-02-test-spec.md    ← test-strategist-agent (discovery)
+00-requirements.md  ← requirements-agent (discovery, first)
+01-ui-spec.md       ← ux-designer-agent (discovery, conditional — consumes 00)
+02-test-spec.md     ← test-strategist-agent (discovery, last — consumes 00 and 01 when present)
 
          ↓ all 3 feed into
 

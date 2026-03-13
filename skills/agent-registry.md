@@ -29,9 +29,10 @@ invent agent names that are not listed here.
 
 ### test-strategist-agent
 
-- **Phase:** Discovery
+- **Phase:** Discovery (runs last in Discovery — after requirements and ux-designer)
 - **Layer:** Tests
-- **Responsible for:** Test strategy — unit, integration, E2E classification from requirements
+- **Responsible for:** Test strategy — unit, integration, E2E classification from requirements and UI spec
+- **Consumes from:** requirements-agent (00-requirements.md), ux-designer-agent (01-ui-spec.md when feature has UI)
 - **Output artifact:** `.cursor/tickets/<feature>/02-test-spec.md`
 
 ## Planning Agents (Phase 1)
