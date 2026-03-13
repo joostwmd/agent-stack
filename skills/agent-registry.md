@@ -82,14 +82,14 @@ invent agent names that are not listed here.
 - **Layer:** API / Backend
 - **Responsible for:** Hono + tRPC (combined in server app), procedures, data-fetching
 - **Output artifact:** `packages/server/src/routers/<name>.ts` (or `apps/server/src/routers/<name>.ts`)
-- **Skills:** hono.md, trpc.md, better-auth.md, skills/database/ (load _index.md + specific file when needed), supabase.md
+- **Skills:** hono.md, trpc.md, skills/auth/, skills/database/ (load _index.md + specific file when needed), supabase.md
 
 ### auth-agent
 
 - **Layer:** Auth
 - **Responsible for:** Better Auth config, guards, protected routes. Auth at application layer, not RLS.
 - **Output artifact:** `packages/auth/` — Better Auth instance, adapters, session config
-- **Skills:** better-auth.md
+- **Skills:** skills/auth/
 
 ### ui-agent
 

@@ -81,8 +81,8 @@ skills/
 │   ├── queries.md
 │   ├── performance.md
 │   └── migrations.md
+├── auth/               # Better Auth: _index.md + skills (best-practices, security, 2FA, orgs)
 ├── trpc.md             # Single file when domain is small
-└── better-auth.md
 ```
 
 ### The Index File (`_index.md`)

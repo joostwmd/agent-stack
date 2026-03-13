@@ -41,8 +41,8 @@ agent-stack/
 │   │   ├── error-handling.md
 │   │   ├── queries.md
 │   │   └── migrations.md
+│   ├── auth/                      # Better Auth: _index, best-practices, security, 2FA, orgs
 │   ├── supabase.md
-│   ├── better-auth.md
 │   ├── hono.md
 │   ├── trpc.md
 │   ├── react.md
