@@ -6,7 +6,7 @@
   "keywords": ["agents", "supabase", "better-auth", "hono", "trpc", "react", "tanstack", "shadcn", "typescript", "pipeline"],
   "agents": "src/agents",
   "rules": "src/rules",
-  "skills": "src/skills",
+  "skills": ["src/skills", "src/skills/frontend/design"],
   "commands": "src/commands",
   "hooks": "src/hooks/hooks.json",
   "mcpServers": "src/.mcp.json"

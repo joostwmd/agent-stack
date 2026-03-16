@@ -97,7 +97,7 @@ invent agent names that are not listed here.
 - **Layer:** UI / Frontend
 - **Responsible for:** React components, pages, client state, data fetching, forms, Shadcn composition
 - **Output artifact:** `src/pages/<page>.tsx`, `src/components/<name>.tsx`, `src/hooks/*.ts`
-- **Skills:** skills/frontend/ — load only the specific skill needed (shadcn, tanstack-query-best-practices, react-best-practices, zustand, design)
+- **Skills:** skills/frontend/ — load only the specific skill needed (shadcn, tanstack-query-best-practices, react-best-practices, zustand, design). For design: see skills/frontend/design/_index.md routing table (adapt, animate, audit, bolder, clarify, colorize, critique, delight, distill, extract, frontend-design, harden, normalize, onboard, optimize, polish, quieter, teach-impeccable).
 
 ### test-writer-agent
 

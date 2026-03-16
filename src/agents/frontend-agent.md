@@ -92,6 +92,24 @@ Load **only** the skill relevant to your current task. Do not load all skills.
 | Shadcn composition, compound components, styling | skills/frontend/shadcn/SKILL.md |
 | ErrorBoundary, query errors, mutation errors | skills/frontend/tanstack-query-best-practices rules (err-*) |
 | Dynamic imports, barrel imports, memoization | skills/frontend/react-best-practices/SKILL.md |
+| Adapt across devices/contexts | skills/frontend/design/adapt/SKILL.md |
+| Motion, micro-interactions | skills/frontend/design/animate/SKILL.md |
+| Audit quality (a11y, perf, theming) | skills/frontend/design/audit/SKILL.md |
+| Amplify safe/boring designs | skills/frontend/design/bolder/SKILL.md |
+| UX copy, labels, errors | skills/frontend/design/clarify/SKILL.md |
+| Strategic color | skills/frontend/design/colorize/SKILL.md |
+| Design effectiveness evaluation | skills/frontend/design/critique/SKILL.md |
+| Joy, personality | skills/frontend/design/delight/SKILL.md |
+| Strip to essence, simplify | skills/frontend/design/distill/SKILL.md |
+| Extract components, tokens | skills/frontend/design/extract/SKILL.md |
+| Build distinctive UIs from scratch | skills/frontend/design/frontend-design/SKILL.md |
+| Resilience, edge cases | skills/frontend/design/harden/SKILL.md |
+| Align with design system | skills/frontend/design/normalize/SKILL.md |
+| Onboarding, empty states | skills/frontend/design/onboard/SKILL.md |
+| Performance optimization | skills/frontend/design/optimize/SKILL.md |
+| Final polish pass | skills/frontend/design/polish/SKILL.md |
+| Tone down intensity | skills/frontend/design/quieter/SKILL.md |
+| Design context setup | skills/frontend/design/teach-impeccable/SKILL.md |
 | ARIA, focus, keyboard nav | skills/frontend/design/_index.md |
 
 ---
