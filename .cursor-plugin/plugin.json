@@ -1,0 +1,13 @@
+{
+  "name": "agent-stack",
+  "version": "1.0.0",
+  "description": "5-phase agentic dev pipeline for Supabase + Better Auth + Hono + tRPC + React + TanStack + Shadcn",
+  "author": { "name": "joostwindmoller" },
+  "keywords": ["agents", "supabase", "better-auth", "hono", "trpc", "react", "tanstack", "shadcn", "typescript", "pipeline"],
+  "agents": "src/agents",
+  "rules": "src/rules",
+  "skills": "src/skills",
+  "commands": "src/commands",
+  "hooks": "src/hooks/hooks.json",
+  "mcpServers": "src/.mcp.json"
+}

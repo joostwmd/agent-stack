@@ -1,0 +1,13 @@
+{
+  "hooks": {
+    "beforeShellExecution": [
+      { "command": "node ./src/scripts/block-dangerous-commands.js" }
+    ],
+    "afterFileEdit": [
+      { "command": "node ./src/scripts/post-tool-use-check.js" }
+    ],
+    "sessionStart": [
+      { "command": "node ./src/scripts/event-logger.js" }
+    ]
+  }
+}

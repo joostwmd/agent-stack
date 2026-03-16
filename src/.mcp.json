@@ -1,0 +1,4 @@
+{
+  "_note": "Configure these per-project in your .cursor/mcp.json — credentials are project-specific",
+  "mcpServers": {}
+}
