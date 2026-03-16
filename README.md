@@ -8,7 +8,24 @@ Install as a Cursor plugin — improve a prompt once, every project gets it.
 
 ## Installation
 
-### From a local clone (Pro users, private repo)
+### Local testing (development)
+
+Cursor doesn't offer "Add local plugin" in the UI. Use the manual install script:
+
+```bash
+# From agent-stack repo root
+bash scripts/install-plugin.sh
+```
+
+This copies the plugin to `~/.cursor/plugins/agent-stack/`, registers it in `~/.claude/plugins/installed_plugins.json`, and enables it in `~/.claude/settings.json`.
+
+Then **restart Cursor**. Commands, skills, and agents should appear.
+
+If they don't: enable **Settings → Features → "Include third-party Plugins, Skills, and other configs"** (or the equivalent in your Cursor version).
+
+**Dev loop:** Edit → run `bash scripts/install-plugin.sh` → restart Cursor → test.
+
+### From a local clone (if Add local plugin exists)
 
 1. Clone this repo to a fixed location:
 
