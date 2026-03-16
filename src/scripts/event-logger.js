@@ -7,6 +7,12 @@
  *
  * Output: ~/.cursor/hooks-logs/YYYY-MM-DD.jsonl
  *
+ * Session awareness (SessionStart):
+ *   - Writes ~/.cursor/agent-stack-sessions/<project-slug>-$PPID
+ *   - Counts session files modified in last 120 minutes for same project
+ *   - If count > 1: writes status-<project-slug>.json with isMultiSession
+ *   - Workflow scripts read this to set AGENT_STACK_MULTI_SESSION
+ *
  * Covers all 13 event types:
  * SessionStart, SessionEnd, UserPromptSubmit, PreToolUse, PostToolUse,
  * PostToolUseFailure, PermissionRequest, SubagentStart, SubagentStop,
@@ -20,6 +26,9 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+
+const SESSIONS_DIR = path.join(os.homedir(), '.cursor', 'agent-stack-sessions');
+const SESSION_WINDOW_MS = 120 * 60 * 1000; // 120 minutes
 
 const MAX_STR = 2000;
 const MAX_LIST = 50;
@@ -36,6 +45,53 @@ function truncate(value, maxLen = MAX_STR) {
     return `${value.slice(0, maxLen)}... (${value.length} chars)`;
   }
   return value;
+}
+
+function getProjectSlug(cwd) {
+  try {
+    const base = path.basename(cwd || process.cwd());
+    return base.replace(/[^a-zA-Z0-9_-]/g, '-') || 'default';
+  } catch {
+    return 'default';
+  }
+}
+
+function updateSessionTracking(hookEventName, cwd) {
+  if (hookEventName !== 'SessionStart') return;
+  try {
+    fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+    const slug = getProjectSlug(cwd);
+    const sessionFile = path.join(SESSIONS_DIR, `${slug}-${process.ppid}`);
+    fs.writeFileSync(sessionFile, JSON.stringify({ cwd, ts: new Date().toISOString() }));
+    const now = Date.now();
+    const files = fs.readdirSync(SESSIONS_DIR).filter((f) => f.startsWith(slug + '-') && f.endsWith('.json') === false);
+    let recentCount = 0;
+    for (const f of files) {
+      try {
+        const stat = fs.statSync(path.join(SESSIONS_DIR, f));
+        if (now - stat.mtimeMs < SESSION_WINDOW_MS) recentCount++;
+      } catch {
+        /* ignore */
+      }
+    }
+    const isMultiSession = recentCount > 1;
+    const statusPath = path.join(SESSIONS_DIR, `status-${slug}.json`);
+    fs.writeFileSync(
+      statusPath,
+      JSON.stringify({
+        projectSlug: slug,
+        isMultiSession,
+        recentSessionCount: recentCount,
+        updatedAt: new Date().toISOString(),
+      })
+    );
+    if (isMultiSession) {
+      const envPath = path.join(SESSIONS_DIR, `env-${slug}`);
+      fs.writeFileSync(envPath, `AGENT_STACK_MULTI_SESSION=1\n`);
+    }
+  } catch (e) {
+    console.error(`[event-logger] Session tracking error: ${e.message}`);
+  }
 }
 
 function processValue(value) {
@@ -86,6 +142,8 @@ function main() {
 
     const logFile = getLogFilePath();
     fs.appendFileSync(logFile, JSON.stringify(event) + '\n');
+
+    updateSessionTracking(event.hook_event_name, event.cwd);
   } catch (e) {
     console.error(`[event-logger] Error: ${e.message}`);
   }

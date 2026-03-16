@@ -166,6 +166,19 @@ A plain-English list of which tasks can run simultaneously and why.
 An explicit list of anything mentioned in the requirements that this plan
 deliberately does not address, and why.
 
+### 6. Invisible Knowledge
+
+**System rationale:** [why this approach over the obvious alternatives]
+
+**Invariants:**
+- [things that must always remain true]
+
+**Accepted trade-offs:**
+- [what was accepted and why]
+
+**Rejected alternatives:**
+- [what was considered and dismissed]
+
 ---
 
 ## Constraints
@@ -180,3 +193,6 @@ deliberately does not address, and why.
 - Mutation testing always runs last before review. The penultimate task in
   every plan MUST be mutation-tester-agent. The final task MUST be
   reviewer-agent. These two tasks are non-negotiable.
+- The ## Invisible Knowledge section must be substantively filled before
+  submitting the plan. Blank fields are not acceptable. If a field does
+  not apply to this feature, state explicitly why.
