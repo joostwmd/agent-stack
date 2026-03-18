@@ -57,6 +57,7 @@ src/
   middleware/
     security.ts               -- CORS, secureHeaders
     logger.ts                 -- Request-scoped structured logger
+    locale.ts                 -- i18n locale extraction from x-locale header
     session.ts                -- Better Auth session extraction
     sentry.ts                 -- Sentry user context binding
   trpc/
@@ -86,6 +87,8 @@ src/
 | Error handling patterns, errorMapperMiddleware, TRPCError codes, onError         | trpc-errors.md     |
 | Router structure, input/output validation, type export, batching, client setup   | trpc-routers.md    |
 | Sentry integration (both layers), structured logging, observability              | observability.md   |
+| Hono locale middleware, tRPC context bridge                                      | skills/i18n/hono-middleware.md |
+| Localized error messages, server translations                                    | skills/i18n/translation-management.md |
 
 **Do not load all files.** Load one, do the work, move on.
 
@@ -117,12 +120,13 @@ src/
  2. cors()                  -- Security
  3. auth.handler()          -- Better Auth routes (before session MW)
  4. requestLogger()         -- Observability
- 5. sessionMiddleware()     -- Auth extraction (one getSession call)
- 6. sentryUserContext()     -- Observability
- 7. trpcServer()            -- tRPC (all procedure logic inside)
- 8. /healthz, /readyz       -- Operational endpoints
- 9. app.onError()           -- Global HTTP error handler
-10. app.notFound()          -- 404
+ 5. localeMiddleware()      -- i18n locale extraction (before session MW)
+ 6. sessionMiddleware()     -- Auth extraction (one getSession call)
+ 7. sentryUserContext()     -- Observability
+ 8. trpcServer()            -- tRPC (all procedure logic inside)
+ 9. /healthz, /readyz       -- Operational endpoints
+10. app.onError()           -- Global HTTP error handler
+11. app.notFound()          -- 404
 ```
 
 ---

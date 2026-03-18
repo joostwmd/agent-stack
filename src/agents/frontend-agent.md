@@ -61,6 +61,7 @@ src/
 - Loading/error: Skeleton vs Spinner per spec; ErrorBoundary or query onError
 - Bundle: dynamic imports for modals/heavy components not on initial load; direct icon imports
 - Accessibility: aria-labels, focus return, Shadcn a11y defaults
+- Internationalization: i18next with hardcoded resources, useTranslation hook, Trans component for complex content
 
 ---
 
@@ -111,6 +112,9 @@ Load **only** the skill relevant to your current task. Do not load all skills.
 | Tone down intensity | skills/frontend/design/quieter/SKILL.md |
 | Design context setup | skills/frontend/design/teach-impeccable/SKILL.md |
 | ARIA, focus, keyboard nav | skills/frontend/design/_index.md |
+| i18n setup, useTranslation, Trans component | skills/i18n/react-integration.md |
+| Language switching, locale detection | skills/i18n/setup.md |
+| Type-safe translation keys | skills/i18n/typescript-setup.md |
 
 ---
 
