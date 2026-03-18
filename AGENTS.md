@@ -10,17 +10,17 @@ Guidance for writing agent files and skills for this stack. The goal: **agents s
 
 Agents define **who** they are, **where** they fit, **what** they own, and **how** they must behave. They do **not** contain implementation details.
 
-| Include in agent | Do NOT include |
-|------------------|----------------|
-| Architecture (where this agent sits in the system) | Code examples, implementation patterns |
-| Codebase location (paths, owned files) | Step-by-step how-to guides |
-| Responsibilities (bullet list) | Full API references, config examples |
-| Tools (frontmatter `allowed-tools`) | Detailed error-code mappings, schemas |
-| Constraints (behavioral rules) | Cheatsheets, copy-paste snippets |
-| Skill loading (which skill file to load for which task) | Migration commands, CLI usage details |
-| Cross-agent boundaries (what this agent does NOT do) | |
+| Include in agent                                        | Do NOT include                         |
+| ------------------------------------------------------- | -------------------------------------- |
+| Architecture (where this agent sits in the system)      | Code examples, implementation patterns |
+| Codebase location (paths, owned files)                  | Step-by-step how-to guides             |
+| Responsibilities (bullet list)                          | Full API references, config examples   |
+| Tools (frontmatter `allowed-tools`)                     | Detailed error-code mappings, schemas  |
+| Constraints (behavioral rules)                          | Cheatsheets, copy-paste snippets       |
+| Skill loading (which skill file to load for which task) | Migration commands, CLI usage details  |
+| Cross-agent boundaries (what this agent does NOT do)    |                                        |
 
-**Principle:** If an AI needs to *implement* something, that belongs in a skill. If it needs to *decide whether to do it* or *where to do it*, that belongs in the agent.
+**Principle:** If an AI needs to _implement_ something, that belongs in a skill. If it needs to _decide whether to do it_ or _where to do it_, that belongs in the agent.
 
 ---
 
@@ -28,12 +28,12 @@ Agents define **who** they are, **where** they fit, **what** they own, and **how
 
 Skills hold the **how**: patterns, code examples, conventions, and domain-specific details. They are loaded on demand when the agent has a concrete task.
 
-| Include in skills | Do NOT include |
-|-------------------|----------------|
-| Implementation code, snippets | Agent identity or routing logic |
-| Step-by-step procedures | Cross-agent boundaries |
-| API usage patterns, config examples | Tool permissions |
-| Error mappings, schema definitions | |
+| Include in skills                   | Do NOT include                  |
+| ----------------------------------- | ------------------------------- |
+| Implementation code, snippets       | Agent identity or routing logic |
+| Step-by-step procedures             | Cross-agent boundaries          |
+| API usage patterns, config examples | Tool permissions                |
+| Error mappings, schema definitions  |                                 |
 
 **Principle:** Skills answer "How do I do X?" Agents answer "Am I responsible for X? Where does X live? What rules apply?"
 
@@ -99,12 +99,12 @@ The index file is the **entry point** for that skill domain. It must:
 Example routing table:
 
 ```markdown
-| Task | Load |
-|------|------|
-| Pool setup, Better Auth db wiring | connection.md |
-| Creating/modifying tables, relations | schema.md |
-| tx proxy, withTransaction | transactions.md |
-| dbSafe, error classes, retry | error-handling.md |
+| Task                                 | Load              |
+| ------------------------------------ | ----------------- |
+| Pool setup, Better Auth db wiring    | connection.md     |
+| Creating/modifying tables, relations | schema.md         |
+| tx proxy, withTransaction            | transactions.md   |
+| dbSafe, error classes, retry         | error-handling.md |
 ```
 
 ### Chunk Files
@@ -118,11 +118,11 @@ Each chunk covers **one concern** (e.g. transactions, schema, migrations). It sh
 
 ### When to Use Chunks vs Single File
 
-| Use a directory + index | Use a single file |
-|-------------------------|-------------------|
-| Domain has 4+ distinct implementation concerns | Domain is narrow (1–2 concerns) |
-| Different tasks need different subsets of knowledge | Same content applies to all tasks |
-| Example: database (connection, schema, tx, errors, queries, migrations) | Example: trpc, hono, react |
+| Use a directory + index                                                 | Use a single file                 |
+| ----------------------------------------------------------------------- | --------------------------------- |
+| Domain has 4+ distinct implementation concerns                          | Domain is narrow (1–2 concerns)   |
+| Different tasks need different subsets of knowledge                     | Same content applies to all tasks |
+| Example: database (connection, schema, tx, errors, queries, migrations) | Example: trpc, hono, react        |
 
 ---
 
@@ -130,16 +130,16 @@ Each chunk covers **one concern** (e.g. transactions, schema, migrations). It sh
 
 Every agent file should include:
 
-| Section | Content | Approx size |
-|---------|---------|-------------|
-| **Frontmatter** | name, description, model, allowed-tools | — |
-| **Architecture** | Diagram or bullets — where this agent fits | ~200 tokens |
-| **Location** | Owned paths and files | ~150 tokens |
-| **Responsibilities** | Bullet list | ~100 tokens |
-| **Constraints** | Numbered rules (no implementation) | ~200 tokens |
-| **Skill Loading** | Routing table + "load one, not all" | ~150 tokens |
-| **Cross-Agent Boundaries** | Table: this agent does NOT / who does | ~100 tokens |
-| **Output Format** | Short checklist | ~50 tokens |
+| Section                    | Content                                    | Approx size |
+| -------------------------- | ------------------------------------------ | ----------- |
+| **Frontmatter**            | name, description, model, allowed-tools    | —           |
+| **Architecture**           | Diagram or bullets — where this agent fits | ~200 tokens |
+| **Location**               | Owned paths and files                      | ~150 tokens |
+| **Responsibilities**       | Bullet list                                | ~100 tokens |
+| **Constraints**            | Numbered rules (no implementation)         | ~200 tokens |
+| **Skill Loading**          | Routing table + "load one, not all"        | ~150 tokens |
+| **Cross-Agent Boundaries** | Table: this agent does NOT / who does      | ~100 tokens |
+| **Output Format**          | Short checklist                            | ~50 tokens  |
 
 **Total target:** ~950 tokens for structure; remaining budget for edge cases and links.
 
@@ -162,11 +162,11 @@ Example from an agent:
 
 **Then load ONLY** the file relevant to your current task:
 
-| Task | Load |
-|------|------|
+| Task                              | Load          |
+| --------------------------------- | ------------- |
 | Pool setup, Better Auth db wiring | connection.md |
-| Creating/modifying tables | schema.md |
-| ... | ... |
+| Creating/modifying tables         | schema.md     |
+| ...                               | ...           |
 
 **Do not load all files.** Load one, do the work, move on.
 ```
@@ -175,12 +175,12 @@ Example from an agent:
 
 ## 6. Summary
 
-| Artifact | Purpose | Size / Structure |
-|----------|---------|------------------|
-| **Agent** | Identity, scope, constraints, routing | < 3,000 tokens; no implementation |
-| **Skill index** | Overview + routing table | Short; links to chunks |
-| **Skill chunk** | Implementation for one concern | Focused; code + patterns |
-| **Single skill file** | Implementation for a narrow domain | One file when chunks aren’t needed |
+| Artifact              | Purpose                               | Size / Structure                   |
+| --------------------- | ------------------------------------- | ---------------------------------- |
+| **Agent**             | Identity, scope, constraints, routing | < 3,000 tokens; no implementation  |
+| **Skill index**       | Overview + routing table              | Short; links to chunks             |
+| **Skill chunk**       | Implementation for one concern        | Focused; code + patterns           |
+| **Single skill file** | Implementation for a narrow domain    | One file when chunks aren’t needed |
 
-Agents answer: *Who am I? What do I own? What are my rules? Where do I get the how?*  
-Skills answer: *How do I implement this?*
+Agents answer: _Who am I? What do I own? What are my rules? Where do I get the how?_  
+Skills answer: _How do I implement this?_

@@ -53,6 +53,7 @@ tests/
 | Custom hook tests | `hooks.md` |
 | tRPC procedure tests (server-side caller) | `trpc.md` |
 | DB query tests (complex joins, transactions) | `db-queries.md` |
+| DB tests for model-factory repositories (DI, session, Transact) | `../database/model-factory-testing.md` |
 | DB infra tests (dbSafe, withRetry) | `db-infra.md` |
 | Shadcn / Radix gotchas | `shadcn.md` |
 

@@ -15,6 +15,7 @@ Bird's-eye view of the DB layer for the Better Auth stack. **Read this file firs
 - **tx singleton** — AsyncLocalStorage + Proxy. Services use `tx`; inside `withTransaction` it uses the active tx, otherwise falls back to `db`.
 - **dbSafe rule:** Standalone `tx` calls → wrap in `dbSafe()`. Inside `withTransaction` → automatic.
 - **tRPC procedures** never import db/tx. They call service functions. Services import `tx` and `withTransaction`.
+- **Model-factory** — Use `defineStaticEntity` / `defineVersionedEntity` for new app tables. Runtime classes (`StaticTable`, `VersionedTable`) receive Transact + Session via DI.
 - **Performance** — db-agent owns indexes, prepared statements (preloading hot queries), and views/materialized views.
 
 ---
@@ -25,6 +26,8 @@ Bird's-eye view of the DB layer for the Better Auth stack. **Read this file firs
 |------|-----------|
 | Pool setup, graceful shutdown, Better Auth db wiring | [connection.md](connection.md) |
 | Auth schema generation, app schema, relations, drizzle-zod | [schema.md](schema.md) |
+| **Factory-based entities, scoping, versioning** | [model-factory.md](model-factory.md) |
+| **Testing factory entities, dependency injection** | [model-factory-testing.md](model-factory-testing.md) |
 | tx proxy, withTransaction, AsyncLocalStorage, dbSafe rule | [transactions.md](transactions.md) |
 | dbSafe impl, PG error codes, error classes, tRPC mapper, retry | [error-handling.md](error-handling.md) |
 | Prepared statements, relational queries, views | [queries.md](queries.md) |
@@ -39,6 +42,7 @@ Bird's-eye view of the DB layer for the Better Auth stack. **Read this file firs
 2. **dbSafe:** Inside `withTransaction` = safe. Standalone `tx` = wrap in `dbSafe(() => ...)`.
 3. **One pool** — same `db` passed to both Drizzle and `drizzleAdapter(db)`.
 4. **Auth schema first** — `npx @better-auth/cli generate` → then app schema references `users`.
+5. **Model-factory for new entities** — Prefer `defineStaticEntity` / `defineVersionedEntity` over manual table definitions. Runtime classes need Transact + Session via DI.
 
 ---
 
@@ -49,12 +53,17 @@ src/lib/db/
 ├── index.ts          # db, pool
 ├── schema.ts         # barrel (auth + app)
 ├── auth-schema.ts    # Better Auth generated
-├── app-schema.ts     # App tables
+├── app-schema.ts     # App tables (use model-factory for new entities)
 ├── relations.ts
 ├── zod.ts
-├── transaction.ts
+├── transaction.ts    # tx proxy, withTransaction, Transact type
 ├── safety-net.ts
 ├── errors.ts
 ├── queries.ts
 └── retry.ts
+
+model-factory/
+├── schema/           # defineStaticEntity, defineVersionedEntity
+├── runtime/          # BaseTable, StaticTable, VersionedTable
+└── types.ts          # Session, SYSTEM_KEYS
 ```

@@ -109,6 +109,7 @@ Tests live under `tests/`. Paths are project-specific — check `.cursor/project
 | Custom hook tests | hooks.md |
 | tRPC procedure tests | trpc.md |
 | DB query tests (PGlite) | db-queries.md |
+| DB tests for model-factory repositories (DI, session) | skills/database/model-factory-testing.md |
 | DB infrastructure (dbSafe, withRetry) | db-infra.md |
 | Shadcn / Radix gotchas | shadcn.md |
 
