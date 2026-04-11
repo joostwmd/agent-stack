@@ -2,3 +2,5 @@
 *.log
 .agents/
 skills-lock.json
+
+university-modules/
